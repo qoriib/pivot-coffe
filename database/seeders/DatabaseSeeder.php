@@ -12,8 +12,12 @@ class DatabaseSeeder extends Seeder
             AdminSeeder::class,
             CategorySeeder::class,
             MenuSeeder::class,
-            TableSeeder::class,
+            CafeTableSeeder::class,
             PromoSeeder::class,
+            SettingSeeder::class,
+            OrderSeeder::class,
+            WaiterCallSeeder::class,
+            ContactMessageSeeder::class,
         ]);
     }
 }

@@ -3,10 +3,14 @@
 use App\Http\Controllers\Admin;
 use App\Http\Controllers\Customer;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\LandingController;
 use Illuminate\Support\Facades\Route;
 
-// Redirect root to admin
-Route::get('/', fn() => redirect()->route('admin.login'));
+// ─── Landing Page Routes ──────────────────────────────────────────────────────
+Route::get('/', [LandingController::class, 'home'])->name('landing.home');
+Route::get('/about', [LandingController::class, 'about'])->name('landing.about');
+Route::get('/contact', [LandingController::class, 'contact'])->name('landing.contact');
+Route::post('/contact', [LandingController::class, 'submitContact'])->name('landing.contact.submit');
 
 // ─── Customer Routes (no auth) ────────────────────────────────────────────────
 Route::prefix('order')->name('customer.')->group(function () {
@@ -107,5 +111,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/users', [Admin\UserController::class, 'store'])->name('users.store');
         Route::put('/users/{user}', [Admin\UserController::class, 'update'])->name('users.update');
         Route::delete('/users/{user}', [Admin\UserController::class, 'destroy'])->name('users.destroy');
+
+        // Settings
+        Route::get('/settings', [Admin\SettingController::class, 'index'])->name('settings.index');
+        Route::post('/settings', [Admin\SettingController::class, 'update'])->name('settings.update');
+
+        // Contact Messages
+        Route::get('/contacts', [Admin\ContactMessageController::class, 'index'])->name('contacts.index');
+        Route::delete('/contacts/{message}', [Admin\ContactMessageController::class, 'destroy'])->name('contacts.destroy');
     });
 });
