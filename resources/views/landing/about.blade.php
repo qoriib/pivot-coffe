@@ -1,60 +1,83 @@
 @extends('layouts.landing')
 
-@section('title', 'About - Pivot Caffe')
+@section('title', 'Tentang Kami - Pivot Caffe')
 
 @push('styles')
 <style>
     .page-header {
-        background: var(--primary);
+        background: linear-gradient(rgba(27, 67, 50, 0.8), rgba(27, 67, 50, 0.8)), url('{{ asset('images/display-2.png') }}');
+        background-size: cover;
+        background-position: center;
         color: white;
-        padding: 80px 20px;
+        padding: 160px 0 100px;
         text-align: center;
-        margin-top: -80px; /* Offset navbar */
-        padding-top: 140px; /* Add space for navbar */
-        border-bottom: 1px solid var(--primary-dark);
     }
 
     .page-title {
-        font-size: 2.5rem;
-        font-weight: 700;
-        margin-bottom: 10px;
+        font-size: 4rem;
+        margin-bottom: 20px;
+    }
+
+    .about-section {
+        padding: 100px 0;
     }
 
     .about-content {
-        max-width: 800px;
-        margin: 60px auto;
-        padding: 40px;
-        background: white;
-        border-radius: 8px;
-        border: var(--border);
-        text-align: center;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 80px;
+        align-items: center;
     }
 
-    .about-text {
+    .about-image {
+        position: relative;
+    }
+
+    .about-image img {
+        width: 100%;
+        border-radius: 20px;
+        box-shadow: var(--shadow);
+    }
+
+    .about-image::after {
+        content: '';
+        position: absolute;
+        top: 20px;
+        right: -20px;
+        width: 100%;
+        height: 100%;
+        border: 2px solid var(--accent);
+        border-radius: 20px;
+        z-index: -1;
+    }
+
+    .about-text h2 {
+        font-size: 2.5rem;
+        color: var(--primary);
+        margin-bottom: 25px;
+    }
+
+    .about-text p {
         font-size: 1.1rem;
-        line-height: 1.8;
         color: var(--text-light);
-        margin-bottom: 30px;
+        margin-bottom: 20px;
+        line-height: 1.8;
     }
 
-    .about-images {
-        display: flex;
-        justify-content: center;
-        gap: 20px;
-        margin-top: 40px;
-        flex-wrap: wrap;
+    @media (max-width: 992px) {
+        .about-content {
+            grid-template-columns: 1fr;
+            gap: 50px;
+        }
+        .page-title { font-size: 3rem; }
     }
 
-    .about-img {
-        border-radius: 8px;
-        border: var(--border);
-        object-fit: cover;
-        max-width: 100%;
-        height: auto;
-    }
-
-    .delay-1 {
-        animation-delay: 0.2s;
+    @media (max-width: 768px) {
+        .page-header { padding: 120px 0 60px; }
+        .page-title { font-size: 2.5rem; }
+        .about-section { padding: 60px 0; }
+        .about-text h2 { font-size: 2rem; }
+        .about-image::after { display: none; }
     }
 </style>
 @endpush
@@ -62,20 +85,30 @@
 @section('content')
 <div class="page-header">
     <div class="container">
-        <h1 class="page-title fade-in-up">{{ $aboutTitle }}</h1>
+        <h1 class="page-title font-serif fade-in-up">{{ $aboutTitle }}</h1>
     </div>
 </div>
 
-<div class="container">
-    <div class="about-content fade-in-up delay-1">
-        <div class="about-text">
-            {!! nl2br(htmlspecialchars($aboutText)) !!}
-        </div>
-        
-        <div class="about-images">
-            <img src="https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&w=300&h=200&q=80" alt="Coffee" class="about-img">
-            <img src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=300&h=200&q=80" alt="Cafe Interior" class="about-img">
+<section class="about-section">
+    <div class="container">
+        <div class="about-content">
+            <div class="about-image fade-in-up">
+                <img src="{{ asset('images/display-main.png') }}" alt="Pivot Story">
+            </div>
+            <div class="about-text fade-in-up" style="animation-delay: 0.2s;">
+                <h2 class="font-serif">Cerita di Balik Pivot</h2>
+                <div class="about-text-body">
+                    @if($aboutText)
+                        {!! nl2br(htmlspecialchars($aboutText)) !!}
+                    @else
+                        <p>Pivot Caffe lahir dari keinginan sederhana: menghadirkan secangkir kebahagiaan di tengah hiruk-pikuk keseharian. Nama "Pivot" melambangkan titik balik, tempat di mana Anda bisa berhenti sejenak, berputar dari rutinitas, dan menemukan inspirasi baru.</p>
+                        <p>Kami percaya bahwa kopi berkualitas bukan hanya soal rasa, tapi juga soal koneksi. Itulah mengapa setiap biji kopi yang kami seduh dipilih dengan hati-hati dari perkebunan terbaik, dan setiap ruang di kafe kami dirancang untuk membuat Anda merasa seperti di rumah sendiri.</p>
+                        <p>Bergabunglah bersama kami dalam perjalanan rasa ini. Temukan sudut ternyaman Anda, nikmati aromanya, dan biarkan setiap sesapan membawa Anda pada ketenangan yang Anda cari.</p>
+                    @endif
+                </div>
+            </div>
         </div>
     </div>
-</div>
+</section>
 @endsection
+

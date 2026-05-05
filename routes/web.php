@@ -112,10 +112,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::put('/users/{user}', [Admin\UserController::class, 'update'])->name('users.update');
         Route::delete('/users/{user}', [Admin\UserController::class, 'destroy'])->name('users.destroy');
 
-        // Settings
-        Route::get('/settings', [Admin\SettingController::class, 'index'])->name('settings.index');
-        Route::post('/settings', [Admin\SettingController::class, 'update'])->name('settings.update');
-
         // Contact Messages
         Route::get('/contacts', [Admin\ContactMessageController::class, 'index'])->name('contacts.index');
         Route::delete('/contacts/{message}', [Admin\ContactMessageController::class, 'destroy'])->name('contacts.destroy');

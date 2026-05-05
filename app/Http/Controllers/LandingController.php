@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Setting;
 use App\Models\ContactMessage;
 use App\Models\CafeTable;
 use Illuminate\Http\Request;
@@ -11,24 +10,24 @@ class LandingController extends Controller
 {
     public function home()
     {
-        $heroTitle = Setting::get('landing_hero_title', 'Selamat Datang');
-        $heroSubtitle = Setting::get('landing_hero_subtitle', 'Nikmati kopi terbaik kami');
+        $heroTitle = 'Experience the Art of Coffee';
+        $heroSubtitle = 'Dari Biji Pilihan ke Cangkir Anda';
         $tables = CafeTable::orderBy('number')->get();
         return view('landing.home', compact('heroTitle', 'heroSubtitle', 'tables'));
     }
 
     public function about()
     {
-        $aboutTitle = Setting::get('about_title', 'Tentang Kami');
-        $aboutText = Setting::get('about_text', '');
+        $aboutTitle = 'Tentang Kami';
+        $aboutText = null;
         return view('landing.about', compact('aboutTitle', 'aboutText'));
     }
 
     public function contact()
     {
-        $email = Setting::get('contact_email', '');
-        $phone = Setting::get('contact_phone', '');
-        $address = Setting::get('contact_address', '');
+        $email = 'hello@pivotcoffee.id';
+        $phone = '+62 812-3456-7890';
+        $address = '4F2W+X6 Padang MAS, Kabupaten Karo, Sumatera Utara';
         return view('landing.contact', compact('email', 'phone', 'address'));
     }
 

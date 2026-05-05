@@ -381,9 +381,6 @@
         <a href="{{ route('admin.contacts.index') }}" class="nav-link {{ request()->routeIs('admin.contacts.*') ? 'active' : '' }}">
             <span class="nav-dot"></span> Pesan Kontak
         </a>
-        <a href="{{ route('admin.settings.index') }}" class="nav-link {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}">
-            <span class="nav-dot"></span> Pengaturan
-        </a>
         <div style="margin-top:8px;border-top:1px solid rgba(255,255,255,0.15);padding-top:8px">
             <form action="{{ route('admin.logout') }}" method="POST" class="logout-form">
                 @csrf
