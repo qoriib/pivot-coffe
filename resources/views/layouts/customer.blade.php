@@ -7,397 +7,627 @@
     <title>@yield('title', 'Pivot Caffe')</title>
     <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
-            --primary: #0e6446;
-            --primary-dark: #0a4f37;
-            --secondary: #d7d7d7;
+            --primary: #1b4332;
+            --primary-light: #2d6a4f;
+            --primary-dark: #081c15;
+            --accent: #d4a373;
+            --accent-light: #faedcd;
             --text: #1a1a1a;
-            --text-muted: #6b7280;
-            --bg: #f0f2f0;
+            --text-light: #6b7280;
+            --bg: #fdfcfb;
             --white: #ffffff;
+            --border: 1px solid rgba(0,0,0,0.1);
+            --shadow: 0 4px 20px rgba(0,0,0,0.05);
             --danger: #dc2626;
             --success: #16a34a;
         }
 
         body {
-            font-family: 'Poppins', sans-serif;
-            background: var(--bg);
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg);
             color: var(--text);
-            font-size: 14px;
             line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
             min-height: 100vh;
         }
 
-        /* ══ TOPBAR ══════════════════════════════════════════════ */
-        .topbar {
-            background: var(--primary);
-            color: var(--white);
-            padding: 0 20px;
-            height: 56px;
+        h1, h2, h3, .font-serif {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 25px;
+            width: 100%;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            background: transparent;
+            z-index: 1000;
+            padding: 25px 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .navbar-container {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: 300;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
 
-        .topbar-left { display: flex; align-items: center; gap: 10px; }
-        .topbar-brand { font-size: 17px; font-weight: 700; letter-spacing: -0.3px; }
-        .topbar-table {
-            font-size: 11px;
-            background: rgba(255,255,255,0.18);
-            border: 1px solid rgba(255,255,255,0.3);
-            border-radius: 20px;
-            padding: 3px 10px;
+        .navbar.scrolled, .navbar.navbar-solid {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 0;
+            box-shadow: var(--shadow);
+            border-bottom: var(--border);
+        }
+        
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--white);
+            font-weight: 700;
+            font-size: 22px;
+            transition: color 0.3s;
+        }
+
+        .navbar.scrolled .navbar-brand, .navbar.navbar-solid .navbar-brand {
+            color: var(--primary);
+        }
+
+        .navbar-brand img {
+            height: 40px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 35px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: rgba(255,255,255,0.8);
             font-weight: 500;
+            font-size: 15px;
+            transition: all 0.3s;
+            position: relative;
         }
 
-        .topbar-right { display: flex; align-items: center; gap: 8px; }
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent);
+            transition: width 0.3s;
+        }
 
-        /* Keranjang icon button */
-        .cart-icon-btn {
+        .nav-links a:hover::after, .nav-links a.active::after {
+            width: 100%;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: var(--white);
+        }
+
+        .navbar.scrolled .nav-links a, .navbar.navbar-solid .nav-links a {
+            color: var(--text-light);
+        }
+
+        .navbar.scrolled .nav-links a:hover, .navbar.scrolled .nav-links a.active,
+        .navbar.navbar-solid .nav-links a:hover, .navbar.navbar-solid .nav-links a.active {
+            color: var(--primary);
+        }
+
+        .nav-meta {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .table-badge {
+            background: var(--accent);
+            color: var(--primary-dark);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .cart-toggle-btn {
             position: relative;
             background: rgba(255,255,255,0.15);
             border: 1px solid rgba(255,255,255,0.25);
-            border-radius: 8px;
-            width: 40px; height: 40px;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; color: white;
-            transition: background 0.15s;
-            flex-shrink: 0;
-        }
-        .cart-icon-btn:hover { background: rgba(255,255,255,0.28); }
-        .cart-icon-btn svg { width: 20px; height: 20px; }
-        .cart-badge {
-            position: absolute; top: -6px; right: -6px;
-            background: #ef4444; color: white;
-            border-radius: 50%; width: 18px; height: 18px;
-            font-size: 10px; font-weight: 700;
-            display: flex; align-items: center; justify-content: center;
-            border: 2px solid var(--primary);
-            line-height: 1;
-        }
-
-        /* Waiter button — fixed pojok kanan bawah */
-        .waiter-fab {
-            position: fixed;
-            bottom: 24px; right: 20px;
-            background: var(--primary);
             color: white;
-            border: none;
-            border-radius: 50px;
-            padding: 12px 20px;
-            font-family: 'Poppins', sans-serif;
-            font-size: 13px; font-weight: 600;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
-            box-shadow: 0 4px 16px rgba(14,100,70,0.35);
-            z-index: 200;
-            transition: transform 0.15s, box-shadow 0.15s;
-            white-space: nowrap;
-        }
-        .waiter-fab:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(14,100,70,0.4); }
-        .waiter-fab:active { transform: scale(0.97); }
-
-        /* ══ PAGE WRAPPER — RESPONSIVE ═══════════════════════════ */
-        /* Mobile: full width single column                         */
-        /* Desktop (≥900px): centered, wider, 2-col layout         */
-        .page-wrapper {
-            width: 100%;
-            max-width: 1280px;
-            margin: 0 auto;
-            padding: 20px 16px 100px;
+            transition: all 0.3s;
         }
 
-        @media (min-width: 640px) {
-            .page-wrapper { padding: 24px 24px 80px; }
+        .navbar.scrolled .cart-toggle-btn, .navbar.navbar-solid .cart-toggle-btn {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
         }
 
-        @media (min-width: 900px) {
-            .page-wrapper { padding: 28px 40px 60px; }
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--white);
+            font-size: 20px;
+            cursor: pointer;
+            margin-left: 10px;
+            transition: color 0.3s;
         }
 
-        /* ══ ALERTS ══════════════════════════════════════════════ */
-        .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-size: 13px; }
-        .alert-success { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
-        .alert-error   { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
-        .alert-info    { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
-        .alert-warning { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
-
-        /* ══ BUTTONS ═════════════════════════════════════════════ */
-        .btn {
-            display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-            padding: 10px 20px; border-radius: 8px;
-            font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 500;
-            cursor: pointer; border: none; text-decoration: none; transition: opacity 0.15s;
+        .navbar.scrolled .menu-toggle, .navbar.navbar-solid .menu-toggle {
+            color: var(--primary);
         }
-        .btn:hover { opacity: 0.85; }
-        .btn-primary  { background: var(--primary); color: var(--white); }
-        .btn-secondary{ background: var(--secondary); color: var(--text); }
-        .btn-danger   { background: var(--danger); color: var(--white); }
-        .btn-sm { padding: 6px 12px; font-size: 12px; }
-        .btn-block { width: 100%; }
 
-        /* ══ CARDS ═══════════════════════════════════════════════ */
-        .card { background: var(--white); border-radius: 12px; border: 1px solid var(--secondary); overflow: hidden; margin-bottom: 16px; }
-        .card-body { padding: 16px; }
-
-        /* ══ FORMS ═══════════════════════════════════════════════ */
-        .form-group { margin-bottom: 14px; }
-        label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 5px; }
-        input[type="text"], input[type="number"], select, textarea {
-            width: 100%; padding: 10px 12px;
-            border: 1px solid var(--secondary); border-radius: 8px;
-            font-family: 'Poppins', sans-serif; font-size: 14px;
-            color: var(--text); background: var(--white);
+        .cart-toggle-btn:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: var(--primary-dark);
         }
-        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); }
-        .field-error { color: var(--danger); font-size: 12px; margin-top: 4px; }
 
-        /* ══ BADGES ══════════════════════════════════════════════ */
-        .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-        .badge-success  { background: #dcfce7; color: #166534; }
-        .badge-warning  { background: #fef3c7; color: #92400e; }
-        .badge-danger   { background: #fee2e2; color: #991b1b; }
-        .badge-secondary{ background: var(--secondary); color: var(--text-muted); }
+        .cart-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--white);
+        }
 
-        /* ══ SECTION TITLE ═══════════════════════════════════════ */
-        .section-title { font-size: 15px; font-weight: 700; margin-bottom: 12px; color: var(--text); }
+        main {
+            flex: 1;
+        }
 
-        /* ══ CART DRAWER (popup dari kanan) ══════════════════════ */
         .cart-backdrop {
-            position: fixed; inset: 0;
-            background: rgba(0,0,0,0.45);
-            z-index: 400;
-            opacity: 0; visibility: hidden;
-            transition: opacity 0.25s, visibility 0.25s;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
         }
-        .cart-backdrop.open { opacity: 1; visibility: visible; }
+
+        .cart-backdrop.open {
+            opacity: 1;
+            visibility: visible;
+        }
 
         .cart-drawer {
             position: fixed;
             top: 0; right: 0;
-            width: 100%; max-width: 400px;
+            width: 100%; max-width: 450px;
             height: 100vh;
             background: var(--white);
-            z-index: 401;
-            display: flex; flex-direction: column;
+            z-index: 2001;
+            display: flex;
+            flex-direction: column;
             transform: translateX(100%);
-            transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
-            box-shadow: -4px 0 32px rgba(0,0,0,0.15);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: -10px 0 30px rgba(0,0,0,0.1);
         }
-        .cart-backdrop.open .cart-drawer { transform: translateX(0); }
 
-        .cart-drawer-header {
-            padding: 16px 20px;
-            border-bottom: 1px solid var(--secondary);
-            display: flex; align-items: center; justify-content: space-between;
-            flex-shrink: 0;
-            background: var(--white);
+        .cart-backdrop.open .cart-drawer {
+            transform: translateX(0);
         }
-        .cart-drawer-title { font-size: 16px; font-weight: 700; }
-        .cart-drawer-close {
-            width: 32px; height: 32px; border-radius: 8px;
-            border: none; background: var(--secondary);
-            cursor: pointer; font-size: 18px; color: var(--text-muted);
-            display: flex; align-items: center; justify-content: center;
+
+        .cart-header {
+            padding: 25px;
+            border-bottom: var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
-        .cart-drawer-close:hover { background: #c8c8c8; }
 
-        .cart-drawer-body { flex: 1; overflow-y: auto; padding: 12px 20px; }
+        .cart-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 25px;
+        }
 
-        .cart-drawer-footer {
-            padding: 16px 20px;
-            border-top: 1px solid var(--secondary);
+        .cart-footer {
+            padding: 25px;
             background: #fafafa;
-            flex-shrink: 0;
+            border-top: var(--border);
         }
 
-        .cart-item-row {
-            display: flex; align-items: center; gap: 10px;
-            padding: 10px 0; border-bottom: 1px solid #f0f0f0;
+        /* Toasts */
+        #toast-container {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            z-index: 3000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
-        .cart-item-row:last-child { border-bottom: none; }
-        .cart-item-info { flex: 1; min-width: 0; }
-        .cart-item-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .cart-item-price { font-size: 11px; color: var(--text-muted); }
-        .cart-item-subtotal { font-size: 13px; font-weight: 700; color: var(--primary); white-space: nowrap; }
 
-        .cart-qty-ctrl { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
-        .cart-qty-btn {
-            width: 26px; height: 26px; border-radius: 6px;
-            border: 1px solid var(--secondary); background: white;
-            font-size: 14px; cursor: pointer;
+        .toast {
+            background: white;
+            padding: 15px 25px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-left: 5px solid var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideInRight 0.3s ease-out;
+            min-width: 250px;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Footer */
+        footer {
+            background: var(--primary-dark);
+            color: var(--white);
+            padding: 100px 8% 60px;
+            text-align: center;
+        }
+
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .footer-brand {
+            font-size: 2.5rem;
+            color: var(--accent);
+            margin-bottom: 25px;
+        }
+
+        .footer-description {
+            color: rgba(255,255,255,0.7);
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 40px;
+        }
+
+        .footer-social {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 50px;
+        }
+
+        .social-icon {
+            width: 50px; height: 50px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
             display: flex; align-items: center; justify-content: center;
-        }
-        .cart-qty-num { font-size: 13px; font-weight: 600; min-width: 22px; text-align: center; }
-
-        /* ══ TOAST ═══════════════════════════════════════════════ */
-        #c-toast-wrap {
-            position: fixed; top: 68px; left: 50%;
-            transform: translateX(-50%);
-            z-index: 500; pointer-events: none;
-            width: calc(100% - 32px); max-width: 380px;
-            display: flex; flex-direction: column; gap: 8px;
-        }
-        .c-toast {
-            background: white; border-radius: 10px;
-            padding: 12px 16px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.12);
-            font-size: 13px; font-weight: 500;
-            display: flex; align-items: center; gap: 10px;
-            pointer-events: all;
-            animation: cToastIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
-        }
-        .c-toast-success { border-left: 4px solid var(--success); color: #166534; }
-        .c-toast-error   { border-left: 4px solid var(--danger);  color: #991b1b; }
-        .c-toast-info    { border-left: 4px solid #3b82f6;        color: #1e40af; }
-        @keyframes cToastIn  { from { opacity:0; transform:translateY(-12px) scale(0.95); } to { opacity:1; transform:translateY(0) scale(1); } }
-        @keyframes cToastOut { from { opacity:1; transform:translateY(0) scale(1); } to { opacity:0; transform:translateY(-12px) scale(0.95); } }
-
-        /* ══ ALERT AUTO-DISMISS ══════════════════════════════════ */
-        @keyframes alertFadeOut {
-            0%   { opacity: 1; max-height: 80px; margin-bottom: 16px; padding: 12px 16px; }
-            70%  { opacity: 0; max-height: 80px; }
-            100% { opacity: 0; max-height: 0; margin-bottom: 0; padding: 0; }
-        }
-        .alert.dismissing {
-            animation: alertFadeOut 0.5s ease forwards;
-            overflow: hidden;
+            color: var(--white); text-decoration: none;
+            transition: all 0.3s; font-size: 1.2rem;
         }
 
-        @media print { .no-print { display: none !important; } }
+        .social-icon:hover {
+            background: var(--accent); color: var(--primary-dark); transform: translateY(-5px);
+        }
+
+        /* Utility Classes */
+        .btn {
+            display: inline-block;
+            padding: 14px 32px;
+            border-radius: 50px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer; border: none; text-align: center; font-size: 15px;
+        }
+
+        .section-padding {
+            padding: 100px 0;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-title h2 {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .section-title p {
+            color: var(--text-light);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-accent { background: var(--accent); color: var(--primary-dark); }
+        .btn-block { width: 100%; display: block; }
+        .btn-sm { padding: 8px 20px; font-size: 13px; }
+
+        .bg-light { background-color: #f8f9fa; }
+        .bg-white { background-color: #ffffff; }
+        .text-center { text-align: center; }
+        
+        .no-print { @media print { display: none !important; } }
+        
+        /* Display Utilities */
+        .d-none { display: none !important; }
+        .d-block { display: block !important; }
+        .d-flex { display: flex !important; }
+        .d-grid { display: grid !important; }
+
+        @media (min-width: 992px) {
+            .d-lg-none { display: none !important; }
+            .d-lg-block { display: block !important; }
+            .d-lg-flex { display: flex !important; }
+        }
+
+        /* Animations */
+        .fade-in-up {
+            animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            opacity: 0;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Cart Item Row */
+        .cart-item-row {
+            display: flex; align-items: center; gap: 15px; padding: 15px 0;
+            border-bottom: 1px dashed rgba(0,0,0,0.1);
+        }
+        
+        .cart-item-info { flex: 1; }
+        .cart-item-name { font-weight: 700; font-size: 14px; margin-bottom: 2px; }
+        .cart-item-price { font-size: 12px; color: var(--text-light); }
+        .cart-qty-ctrl { display: flex; align-items: center; gap: 10px; }
+        .cart-qty-btn { 
+            width: 26px; height: 26px; border-radius: 6px; border: var(--border); 
+            background: white; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: 14px;
+        }
+        .cart-qty-num { font-weight: 700; font-size: 14px; min-width: 20px; text-align: center; }
+
+        @media (max-width: 768px) {
+            .navbar { padding: 15px 0; background: rgba(255, 255, 255, 0.95); border-bottom: var(--border); }
+            .navbar-brand { color: var(--primary); }
+            
+            .menu-toggle { display: block; color: var(--primary); }
+            .cart-toggle-btn { 
+                background: var(--primary); 
+                border-color: var(--primary); 
+                color: white; 
+            }
+            .cart-badge { border-color: var(--white); }
+
+            .nav-links {
+                position: absolute; top: 100%; left: 0; right: 0; background: white;
+                flex-direction: column; gap: 0; border-bottom: var(--border);
+                clip-path: polygon(0 0, 100% 0, 100% 0, 0 0); transition: clip-path 0.4s ease-in-out;
+                box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            }
+            .nav-links.active { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
+            .nav-links a { padding: 20px 25px; border-bottom: 1px solid #f0f0f0; display: block; color: var(--text) !important; }
+            .nav-meta { margin-left: auto; }
+        }
     </style>
     @stack('styles')
 </head>
+@php
+    $cart = [];
+    $cartCount = 0;
+    $cartTotal = 0;
+    if(session('table_id')) {
+        $cart = session('cart_' . session('table_id'), []);
+        $cartCount = collect($cart)->sum('quantity');
+        $cartTotal = collect($cart)->sum(fn($item) => $item['quantity'] * $item['unit_price']);
+    }
+@endphp
 <body>
 
-{{-- ══ TOPBAR ══════════════════════════════════════════════════════════ --}}
-<header class="topbar no-print">
-    <div class="topbar-left">
-        <img src="{{ asset('images/logo.png') }}" alt="Pivot Caffe"
-             style="height:38px;width:38px;object-fit:contain">
-        @if(session('table_number'))
-            <div class="topbar-table">Meja {{ session('table_number') }}</div>
-        @endif
-    </div>
-    <div class="topbar-right">
-        @if(session('table_id'))
-        <button class="cart-icon-btn" onclick="toggleCart()" id="cart-icon-btn" title="Keranjang">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
-                <line x1="3" y1="6" x2="21" y2="6"/>
-                <path d="M16 10a4 4 0 01-8 0"/>
-            </svg>
-            <span class="cart-badge" id="cart-badge-count" style="display:none">0</span>
-        </button>
-        @endif
-    </div>
-</header>
-
-{{-- ══ CART DRAWER ══════════════════════════════════════════════════════ --}}
-<div class="cart-backdrop no-print" id="cart-backdrop" onclick="handleBackdropClick(event)">
-    <div class="cart-drawer" id="cart-drawer">
-        <div class="cart-drawer-header">
-            <div class="cart-drawer-title">Keranjang</div>
-            <button class="cart-drawer-close" onclick="toggleCart()">×</button>
-        </div>
-        <div class="cart-drawer-body" id="cart-drawer-body">
-            <div style="text-align:center;padding:48px 0;color:#6b7280;font-size:13px">
-                Keranjang masih kosong
-            </div>
-        </div>
-        <div class="cart-drawer-footer" id="cart-drawer-footer" style="display:none">
-            <div style="margin-bottom:14px">
-                <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
-                    <span style="color:#6b7280">Subtotal</span>
-                    <span id="cart-subtotal-display">Rp 0</span>
-                </div>
-                <div style="display:flex;justify-content:space-between;font-size:15px;font-weight:700;border-top:1px solid #e5e7eb;padding-top:10px;margin-top:6px">
-                    <span>Total</span>
-                    <span id="cart-total-display" style="color:var(--primary)">Rp 0</span>
-                </div>
-            </div>
-            <a id="cart-checkout-btn" href="#" class="btn btn-primary btn-block" style="margin-bottom:8px">
-                Lanjut ke Checkout
+    <nav class="navbar {{ !request()->routeIs('customer.home', 'customer.about', 'customer.contact') ? 'navbar-solid' : '' }}" id="navbar">
+        <div class="container navbar-container">
+            <a href="{{ route('customer.home') }}" class="navbar-brand">
+                <img src="{{ asset('images/logo.png') }}" alt="Pivot Caffe Logo">
+                Pivot Caffe
             </a>
-            <form id="cart-clear-form" action="#" method="POST">
-                @csrf
-                <button type="submit" class="btn btn-secondary btn-block btn-sm"
-                    onclick="return confirm('Kosongkan keranjang?')">Kosongkan Keranjang</button>
-            </form>
+            
+            <div class="nav-links" id="nav-links">
+                <a href="{{ route('customer.home') }}" class="{{ request()->routeIs('customer.home') ? 'active' : '' }}">Home</a>
+                @if(session('qr_token'))
+                    <a href="{{ route('customer.menu', session('qr_token')) }}" class="{{ request()->routeIs('customer.menu*') ? 'active' : '' }}">Pesan</a>
+                @endif
+                <a href="{{ route('customer.about') }}" class="{{ request()->routeIs('customer.about') ? 'active' : '' }}">About</a>
+                <a href="{{ route('customer.contact') }}" class="{{ request()->routeIs('customer.contact') ? 'active' : '' }}">Contact</a>
+            </div>
+
+            <div class="nav-meta">
+                @if(session('table_number'))
+                    <div class="table-badge">Meja {{ session('table_number') }}</div>
+                @endif
+
+                @if(session('table_id'))
+                    <button class="cart-toggle-btn" onclick="toggleCart()" id="cart-icon-btn">
+                        <i class="fas fa-shopping-basket"></i>
+                        @if($cartCount > 0)
+                            <span class="cart-badge" id="cart-badge-count">{{ $cartCount }}</span>
+                        @endif
+                    </button>
+                @endif
+
+                <button class="menu-toggle" id="mobile-menu-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="cart-backdrop" id="cart-backdrop" onclick="handleBackdropClick(event)">
+        <div class="cart-drawer" id="cart-drawer">
+            <div class="cart-header">
+                <h3 class="font-serif">Pesanan Anda</h3>
+                <button class="cart-qty-btn" onclick="toggleCart()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="cart-body" id="cart-drawer-body">
+                @forelse($cart as $id => $item)
+                    <div class="cart-item-row">
+                        <div class="cart-item-info">
+                            <div class="cart-item-name">{{ $item['name'] }}</div>
+                            <div class="cart-item-price">Rp {{ number_format($item['unit_price'], 0, ',', '.') }}</div>
+                        </div>
+                        <div class="cart-qty-ctrl">
+                            <form action="{{ route('customer.cart.update', session('qr_token')) }}" method="POST" style="display:inline">
+                                @csrf
+                                <input type="hidden" name="menu_id" value="{{ $id }}">
+                                <input type="hidden" name="quantity" value="{{ $item['quantity'] - 1 }}">
+                                <button type="submit" class="cart-qty-btn" {{ $item['quantity'] <= 1 ? 'disabled' : '' }}><i class="fas fa-minus"></i></button>
+                            </form>
+                            <span class="cart-qty-num">{{ $item['quantity'] }}</span>
+                            <form action="{{ route('customer.cart.update', session('qr_token')) }}" method="POST" style="display:inline">
+                                @csrf
+                                <input type="hidden" name="menu_id" value="{{ $id }}">
+                                <input type="hidden" name="quantity" value="{{ $item['quantity'] + 1 }}">
+                                <button type="submit" class="cart-qty-btn"><i class="fas fa-plus"></i></button>
+                            </form>
+                            <form action="{{ route('customer.cart.remove', session('qr_token')) }}" method="POST" style="display:inline; margin-left: 10px;">
+                                @csrf
+                                <input type="hidden" name="menu_id" value="{{ $id }}">
+                                <button type="submit" class="cart-qty-btn" style="color: var(--danger); border-color: rgba(220, 38, 38, 0.2);"><i class="fas fa-trash"></i></button>
+                            </form>
+                        </div>
+                    </div>
+                @empty
+                    <p style="text-align:center; color: var(--text-light); margin-top: 50px;">Keranjang kosong</p>
+                @endforelse
+            </div>
+            @if($cartCount > 0)
+            <div class="cart-footer" id="cart-drawer-footer">
+                <div style="display:flex; justify-content:space-between; margin-bottom: 15px;">
+                    <span style="font-weight: 500;">Subtotal</span>
+                    <span id="cart-subtotal-display" style="font-weight: 700; color: var(--primary);">Rp {{ number_format($cartTotal, 0, ',', '.') }}</span>
+                </div>
+                <a id="cart-checkout-btn" href="{{ route('customer.checkout', session('qr_token')) }}" class="btn btn-primary btn-block">Checkout Sekarang</a>
+                <form id="cart-clear-form" action="{{ route('customer.cart.clear', session('qr_token')) }}" method="POST" style="margin-top: 10px;">
+                    @csrf
+                    <button type="submit" class="btn btn-block" style="background:none; color: var(--text-light); font-size: 13px;" onclick="return confirm('Kosongkan keranjang?')">Kosongkan Keranjang</button>
+                </form>
+            </div>
+            @endif
         </div>
     </div>
-</div>
 
-{{-- ══ PAGE CONTENT ═════════════════════════════════════════════════════ --}}
-<div class="page-wrapper">
-    @if(session('success'))
-        <div class="alert alert-success auto-dismiss">{{ session('success') }}</div>
-    @endif
-    @if(session('error'))
-        <div class="alert alert-error auto-dismiss">{{ session('error') }}</div>
-    @endif
-    @if(session('info'))
-        <div class="alert alert-info auto-dismiss">{{ session('info') }}</div>
-    @endif
+    <main>
+        @yield('content')
+    </main>
 
-    @yield('content')
-</div>
+    <div id="toast-container"></div>
 
-{{-- ══ TOAST CONTAINER ══════════════════════════════════════════════════ --}}
-<div id="c-toast-wrap"></div>
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <h3 class="footer-brand font-serif">Pivot Caffe</h3>
+                <p class="footer-description">
+                    Tempat terbaik untuk menikmati kopi pilihan dengan suasana yang hangat dan inspiratif. Kami menghadirkan biji kopi terbaik dari petani lokal untuk Anda.
+                </p>
+                <div class="footer-social">
+                    <a href="https://www.instagram.com/pivotco.op/" class="social-icon" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; {{ date('Y') }} Pivot Caffe. Crafted with passion for coffee lovers.</p>
+            </div>
+        </div>
+    </footer>
 
-<script>
-/* ── Cart drawer ─────────────────────────────────────────────────── */
-function toggleCart() {
-    const bd = document.getElementById('cart-backdrop');
-    bd.classList.toggle('open');
-    document.body.style.overflow = bd.classList.contains('open') ? 'hidden' : '';
-}
-function handleBackdropClick(e) {
-    if (e.target === document.getElementById('cart-backdrop')) toggleCart();
-}
-document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') {
-        const bd = document.getElementById('cart-backdrop');
-        if (bd && bd.classList.contains('open')) toggleCart();
-    }
-});
+    <script>
+        // Navbar Scroll Effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) { navbar.classList.add('scrolled'); } 
+            else { navbar.classList.remove('scrolled'); }
+        });
 
-/* ── Toast ───────────────────────────────────────────────────────── */
-function cToast(msg, type = 'success') {
-    const wrap = document.getElementById('c-toast-wrap');
-    const el = document.createElement('div');
-    el.className = `c-toast c-toast-${type}`;
-    el.textContent = msg;
-    wrap.appendChild(el);
-    setTimeout(() => {
-        el.style.animation = 'cToastOut 0.3s ease forwards';
-        setTimeout(() => el.remove(), 300);
-    }, 3500);
-}
+        // Mobile Menu Toggle
+        document.getElementById('mobile-menu-btn').addEventListener('click', function() {
+            document.getElementById('nav-links').classList.toggle('active');
+        });
 
-document.addEventListener('DOMContentLoaded', function() {
-    @if(session('waiter_called'))
-        cToast(@json(session('waiter_called')), 'success');
-    @endif
+        // Cart Drawer Functions
+        function toggleCart() {
+            const bd = document.getElementById('cart-backdrop');
+            bd.classList.toggle('open');
+            document.body.style.overflow = bd.classList.contains('open') ? 'hidden' : '';
+        }
+        function handleBackdropClick(e) {
+            if (e.target === document.getElementById('cart-backdrop')) toggleCart();
+        }
 
-    // Auto-dismiss alerts setelah 5 detik
-    document.querySelectorAll('.alert.auto-dismiss').forEach(function(el) {
-        setTimeout(function() {
-            el.classList.add('dismissing');
-            setTimeout(function() { el.remove(); }, 500);
-        }, 5000);
-    });
-});
-</script>
+        // Toast Notification
+        function cToast(msg, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.style.borderLeft = `5px solid ${type === 'success' ? 'var(--success)' : 'var(--danger)'}`;
+            toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}" style="color: ${type === 'success' ? 'var(--success)' : 'var(--danger)'}"></i> <span>${msg}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0'; toast.style.transform = 'translateX(20px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
 
-@stack('scripts')
+        @if(session('success')) cToast(@json(session('success')), 'success'); @endif
+        @if(session('error')) cToast(@json(session('error')), 'error'); @endif
+        @if(session('waiter_called')) cToast(@json(session('waiter_called')), 'success'); @endif
+    </script>
+    @stack('scripts')
 </body>
 </html>

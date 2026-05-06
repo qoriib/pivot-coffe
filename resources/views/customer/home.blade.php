@@ -1,4 +1,4 @@
-@extends('layouts.landing')
+@extends('layouts.customer')
 
 @section('title', 'Pivot Caffe - Premium Coffee Experience')
 
@@ -214,18 +214,21 @@
         <h1 class="hero-title font-serif">{{ $heroTitle }}</h1>
         <p class="hero-subtitle">{{ $heroSubtitle }}</p>
         
+        @if($selectedTable)
         <div class="table-selection-card">
-            <h3>Pesan Langsung dari Meja Anda</h3>
-            <div class="selection-grid">
-                <select id="table-select">
-                    <option value="">Pilih Nomor Meja...</option>
-                    @foreach($tables as $table)
-                        <option value="{{ $table->qr_token }}">Meja {{ $table->number }}</option>
-                    @endforeach
-                </select>
-                <button type="button" class="btn btn-accent" onclick="goToMenu()">Buka Menu</button>
-            </div>
+            <h3 style="font-size: 1.5rem; margin-bottom: 10px;">Selamat Datang di Meja {{ $selectedTable->number }}</h3>
+            <p style="margin-bottom: 25px; opacity: 0.9;">Nikmati kopi terbaik kami langsung dari tempat duduk Anda.</p>
+            <a href="{{ route('customer.menu', $selectedTable->qr_token) }}" class="btn btn-accent" style="padding: 15px 50px; border-radius: 50px; font-size: 1.1rem; display: inline-block;">Lihat Menu</a>
         </div>
+        @else
+        <div style="margin-top: 30px;">
+            @if(session('qr_token'))
+                <a href="{{ route('customer.menu', session('qr_token')) }}" class="btn btn-accent" style="padding: 15px 50px; border-radius: 50px; font-size: 1.1rem; display: inline-block;">Pesan Pivot Coffee</a>
+            @else
+                <a href="#features" class="btn btn-accent" style="padding: 15px 50px; border-radius: 50px; font-size: 1.1rem; display: inline-block;">Jelajahi Pivot Coffee</a>
+            @endif
+        </div>
+        @endif
     </div>
 </section>
 
@@ -344,14 +347,7 @@
 
 @push('scripts')
 <script>
-    function goToMenu() {
-        const token = document.getElementById('table-select').value;
-        if (!token) {
-            alert('Silakan pilih nomor meja Anda terlebih dahulu.');
-            return;
-        }
-        window.location.href = '/order/' + token;
-    }
+    // goToMenu removed as table selection is now automatic via QR scan
 
     // Scroll reveal animation
     const observerOptions = {

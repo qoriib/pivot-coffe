@@ -44,7 +44,7 @@ class TableController extends Controller
 
     public function qr(CafeTable $table)
     {
-        $url = url('/order/' . $table->qr_token);
+        $url = route('customer.home', ['t' => $table->qr_token]);
         $qrCode = QrCode::size(250)->generate($url);
         return view('admin.tables.qr', compact('table', 'qrCode', 'url'));
     }

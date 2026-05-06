@@ -49,8 +49,8 @@
                     </td>
                     <td style="font-size:11px;font-family:monospace;color:#6b7280">{{ Str::limit($table->qr_token, 20) }}</td>
                     <td style="font-size:12px">
-                        <a href="{{ url('/order/'.$table->qr_token) }}" target="_blank" style="color:#0e6446">
-                            /order/{{ Str::limit($table->qr_token, 16) }}...
+                        <a href="{{ route('customer.home', ['t' => $table->qr_token]) }}" target="_blank" style="color:#0e6446">
+                            {{ Str::limit($table->qr_token, 16) }}...
                         </a>
                     </td>
                     <td>
@@ -65,7 +65,7 @@
                                 'Meja {{ $table->number }}',
                                 'Apakah Anda yakin ingin menghapus <strong>Meja {{ $table->number }}</strong>?<br><span style=\'color:#dc2626;font-size:12px\'>Semua data pesanan terkait meja ini juga akan terpengaruh.</span>'
                             )">
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                            Hapus
                         </button>
                     </td>
                 </tr>

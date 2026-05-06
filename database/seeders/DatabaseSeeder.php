@@ -14,7 +14,6 @@ class DatabaseSeeder extends Seeder
             MenuSeeder::class,
             CafeTableSeeder::class,
             PromoSeeder::class,
-            SettingSeeder::class,
             OrderSeeder::class,
             WaiterCallSeeder::class,
             ContactMessageSeeder::class,

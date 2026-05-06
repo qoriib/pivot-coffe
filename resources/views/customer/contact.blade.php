@@ -1,4 +1,4 @@
-@extends('layouts.landing')
+@extends('layouts.customer')
 
 @section('title', 'Hubungi Kami - Pivot Caffe')
 
@@ -177,7 +177,7 @@
                     </div>
                 @endif
 
-                <form action="{{ route('landing.contact.submit') }}" method="POST">
+                <form action="{{ route('customer.contact.submit') }}" method="POST">
                     @csrf
                     <div class="form-group">
                         <label for="name">Nama Lengkap</label>

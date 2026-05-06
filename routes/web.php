@@ -3,14 +3,13 @@
 use App\Http\Controllers\Admin;
 use App\Http\Controllers\Customer;
 use App\Http\Controllers\PaymentController;
-use App\Http\Controllers\LandingController;
 use Illuminate\Support\Facades\Route;
 
-// ─── Landing Page Routes ──────────────────────────────────────────────────────
-Route::get('/', [LandingController::class, 'home'])->name('landing.home');
-Route::get('/about', [LandingController::class, 'about'])->name('landing.about');
-Route::get('/contact', [LandingController::class, 'contact'])->name('landing.contact');
-Route::post('/contact', [LandingController::class, 'submitContact'])->name('landing.contact.submit');
+// ─── Landing Page Routes (now in Customer namespace) ──────────────────────────
+Route::get('/', [Customer\LandingController::class, 'home'])->name('customer.home');
+Route::get('/about', [Customer\LandingController::class, 'about'])->name('customer.about');
+Route::get('/contact', [Customer\LandingController::class, 'contact'])->name('customer.contact');
+Route::post('/contact', [Customer\LandingController::class, 'submitContact'])->name('customer.contact.submit');
 
 // ─── Customer Routes (no auth) ────────────────────────────────────────────────
 Route::prefix('order')->name('customer.')->group(function () {

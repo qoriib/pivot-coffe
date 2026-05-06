@@ -1,26 +1,44 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Customer;
 
+use App\Http\Controllers\Controller;
 use App\Models\ContactMessage;
 use App\Models\CafeTable;
 use Illuminate\Http\Request;
 
 class LandingController extends Controller
 {
-    public function home()
+    public function home(Request $request)
     {
         $heroTitle = 'Experience the Art of Coffee';
         $heroSubtitle = 'Dari Biji Pilihan ke Cangkir Anda';
         $tables = CafeTable::orderBy('number')->get();
-        return view('landing.home', compact('heroTitle', 'heroSubtitle', 'tables'));
+        
+        $token = $request->query('t');
+        $selectedTable = null;
+        
+        if ($token) {
+            $selectedTable = CafeTable::where('qr_token', $token)->first();
+            if ($selectedTable) {
+                session([
+                    'table_id' => $selectedTable->id,
+                    'table_number' => $selectedTable->number,
+                    'qr_token' => $token
+                ]);
+            }
+        }
+
+        // Updated view path to customer.home
+        return view('customer.home', compact('heroTitle', 'heroSubtitle', 'tables', 'selectedTable'));
     }
 
     public function about()
     {
         $aboutTitle = 'Tentang Kami';
         $aboutText = null;
-        return view('landing.about', compact('aboutTitle', 'aboutText'));
+        // Updated view path to customer.about
+        return view('customer.about', compact('aboutTitle', 'aboutText'));
     }
 
     public function contact()
@@ -28,7 +46,8 @@ class LandingController extends Controller
         $email = 'hello@pivotcoffee.id';
         $phone = '+62 812-3456-7890';
         $address = '4F2W+X6 Padang MAS, Kabupaten Karo, Sumatera Utara';
-        return view('landing.contact', compact('email', 'phone', 'address'));
+        // Updated view path to customer.contact
+        return view('customer.contact', compact('email', 'phone', 'address'));
     }
 
     public function submitContact(Request $request)

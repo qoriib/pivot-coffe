@@ -1,4 +1,4 @@
-@extends('layouts.landing')
+@extends('layouts.customer')
 
 @section('title', 'Tentang Kami - Pivot Caffe')
 
