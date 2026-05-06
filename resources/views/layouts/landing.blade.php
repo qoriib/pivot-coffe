@@ -131,56 +131,38 @@
         footer {
             background: var(--primary-dark);
             color: var(--white);
-            padding: 80px 8% 40px;
-            border-top: var(--border);
+            padding: 100px 8% 60px;
+            text-align: center;
         }
 
-        .footer-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1.5fr;
-            gap: 40px;
-            margin-bottom: 60px;
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
         }
 
-        .footer-info p {
-            color: rgba(255,255,255,0.6);
-            margin-top: 20px;
-            max-width: 300px;
-        }
-
-        .footer-links h4 {
-            font-size: 18px;
-            margin-bottom: 25px;
+        .footer-brand {
+            font-size: 2.5rem;
             color: var(--accent);
+            margin-bottom: 25px;
         }
 
-        .footer-links ul {
-            list-style: none;
-        }
-
-        .footer-links ul li {
-            margin-bottom: 12px;
-        }
-
-        .footer-links ul li a {
-            color: rgba(255,255,255,0.6);
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-
-        .footer-links ul li a:hover {
-            color: var(--white);
+        .footer-description {
+            color: rgba(255,255,255,0.7);
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 40px;
         }
 
         .footer-social {
             display: flex;
-            gap: 15px;
-            margin-top: 20px;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 50px;
         }
 
         .social-icon {
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             background: rgba(255,255,255,0.1);
             display: flex;
@@ -189,19 +171,20 @@
             color: var(--white);
             text-decoration: none;
             transition: all 0.3s;
+            font-size: 1.2rem;
         }
 
         .social-icon:hover {
             background: var(--accent);
-            transform: translateY(-3px);
+            color: var(--primary-dark);
+            transform: translateY(-5px);
         }
 
         .footer-bottom {
             padding-top: 40px;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            text-align: center;
-            color: rgba(255,255,255,0.4);
-            font-size: 14px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            color: rgba(255,255,255,0.3);
+            font-size: 13px;
         }
 
         .btn {
@@ -377,39 +360,15 @@
 
     <footer>
         <div class="container">
-            <div class="footer-grid">
-                <div class="footer-info">
-                    <h3 class="font-serif" style="font-size: 24px; color: var(--accent);">Pivot Caffe</h3>
-                    <p>Tempat terbaik untuk menikmati kopi pilihan dengan suasana yang hangat dan inspiratif. Kami menghadirkan biji kopi terbaik dari petani lokal untuk Anda.</p>
-                    <div class="footer-social">
-                        <a href="https://www.instagram.com/pivotco.op/" class="social-icon" target="_blank"><i class="fab fa-instagram"></i></a>
-                        <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" class="social-icon"><i class="fab fa-whatsapp"></i></a>
-                    </div>
-                </div>
-                <div class="footer-links">
-                    <h4>Navigasi</h4>
-                    <ul>
-                        <li><a href="{{ route('landing.home') }}">Home</a></li>
-                        <li><a href="{{ route('landing.about') }}">Tentang Kami</a></li>
-                        <li><a href="{{ route('landing.contact') }}">Kontak</a></li>
-                    </ul>
-                </div>
-                <div class="footer-links">
-                    <h4>Bantuan</h4>
-                    <ul>
-                        <li><a href="#">FAQ</a></li>
-                        <li><a href="#">Kebijakan Privasi</a></li>
-                        <li><a href="#">Syarat & Ketentuan</a></li>
-                    </ul>
-                </div>
-                <div class="footer-links">
-                    <h4>Kontak Kami</h4>
-                    <p style="color: rgba(255,255,255,0.6); font-size: 14px;">
-                        4F2W+X6 Padang MAS, Kabupaten Karo, Sumatera Utara<br><br>
-                        Email: info@pivotcoffee.id<br>
-                        Phone: +62 812-3456-7890
-                    </p>
+            <div class="footer-content">
+                <h3 class="footer-brand font-serif">Pivot Caffe</h3>
+                <p class="footer-description">
+                    Tempat terbaik untuk menikmati kopi pilihan dengan suasana yang hangat dan inspiratif. Kami menghadirkan biji kopi terbaik dari petani lokal untuk Anda.
+                </p>
+                <div class="footer-social">
+                    <a href="https://www.instagram.com/pivotco.op/" class="social-icon" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-whatsapp"></i></a>
                 </div>
             </div>
             <div class="footer-bottom">
