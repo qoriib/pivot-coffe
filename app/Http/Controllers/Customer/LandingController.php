@@ -9,25 +9,19 @@ use Illuminate\Http\Request;
 
 class LandingController extends Controller
 {
-    public function home(Request $request)
+    public function home(CafeTable $table)
     {
         $heroTitle = 'Experience the Art of Coffee';
         $heroSubtitle = 'Dari Biji Pilihan ke Cangkir Anda';
         $tables = CafeTable::orderBy('number')->get();
         
-        $token = $request->query('t');
-        $selectedTable = null;
+        session([
+            'table_id' => $table->id,
+            'table_number' => $table->number,
+            'qr_token' => $table->qr_token
+        ]);
         
-        if ($token) {
-            $selectedTable = CafeTable::where('qr_token', $token)->first();
-            if ($selectedTable) {
-                session([
-                    'table_id' => $selectedTable->id,
-                    'table_number' => $selectedTable->number,
-                    'qr_token' => $token
-                ]);
-            }
-        }
+        $selectedTable = $table;
 
         // Updated view path to customer.home
         return view('customer.home', compact('heroTitle', 'heroSubtitle', 'tables', 'selectedTable'));

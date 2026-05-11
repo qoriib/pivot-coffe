@@ -473,13 +473,13 @@
 
     <nav class="navbar {{ !request()->routeIs('customer.home', 'customer.about', 'customer.contact') ? 'navbar-solid' : '' }}" id="navbar">
         <div class="container navbar-container">
-            <a href="{{ route('customer.home') }}" class="navbar-brand">
+            <a href="{{ session('table_id') ? route('customer.home', session('table_id')) : url('/') }}" class="navbar-brand">
                 <img src="{{ asset('images/logo.png') }}" alt="Pivot Caffe Logo">
                 Pivot Caffe
             </a>
             
             <div class="nav-links" id="nav-links">
-                <a href="{{ route('customer.home') }}" class="{{ request()->routeIs('customer.home') ? 'active' : '' }}">Home</a>
+                <a href="{{ session('table_id') ? route('customer.home', session('table_id')) : url('/') }}" class="{{ request()->routeIs('customer.home') ? 'active' : '' }}">Home</a>
                 @if(session('qr_token'))
                     <a href="{{ route('customer.menu', session('qr_token')) }}" class="{{ request()->routeIs('customer.menu*') ? 'active' : '' }}">Pesan</a>
                 @endif

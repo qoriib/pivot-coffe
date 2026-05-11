@@ -6,7 +6,8 @@ use App\Http\Controllers\PaymentController;
 use Illuminate\Support\Facades\Route;
 
 // ─── Landing Page Routes (now in Customer namespace) ──────────────────────────
-Route::get('/', [Customer\LandingController::class, 'home'])->name('customer.home');
+Route::get('/', [Admin\AuthController::class, 'showLogin']);
+Route::get('/order/table/{table}', [Customer\LandingController::class, 'home'])->name('customer.home');
 Route::get('/about', [Customer\LandingController::class, 'about'])->name('customer.about');
 Route::get('/contact', [Customer\LandingController::class, 'contact'])->name('customer.contact');
 Route::post('/contact', [Customer\LandingController::class, 'submitContact'])->name('customer.contact.submit');
