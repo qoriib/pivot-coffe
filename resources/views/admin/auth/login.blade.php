@@ -120,7 +120,6 @@
         <button type="submit" class="btn-login">Masuk</button>
     </form>
 
-    <a href="{{ route('admin.password.request') }}" class="forgot-link">Lupa password?</a>
 </div>
 </body>
 </html>

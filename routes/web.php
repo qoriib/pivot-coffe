@@ -54,12 +54,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('/login', [Admin\AuthController::class, 'login'])->name('login.post');
     Route::post('/logout', [Admin\AuthController::class, 'logout'])->name('logout');
 
-    // Password reset
-    Route::get('/password/reset', fn() => view('admin.auth.forgot-password'))->name('password.request');
-    Route::post('/password/email', [Admin\PasswordResetController::class, 'sendResetLink'])->name('password.email');
-    Route::get('/password/reset/{token}', [Admin\PasswordResetController::class, 'showResetForm'])->name('password.reset');
-    Route::post('/password/update', [Admin\PasswordResetController::class, 'reset'])->name('password.update');
-
     // Protected admin routes
     Route::middleware(\App\Http\Middleware\AdminAuthenticate::class)->group(function () {
         Route::get('/dashboard', [Admin\DashboardController::class, 'index'])->name('dashboard');
