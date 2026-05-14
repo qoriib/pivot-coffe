@@ -57,10 +57,26 @@ class OrderController extends Controller
      * Konfirmasi pembayaran oleh admin — berlaku untuk tunai dan e-wallet.
      * Saat dikonfirmasi: payment_status = paid, order_status = diproses
      */
-    public function confirmPayment(Order $order)
+    public function confirmPayment(Request $request, Order $order)
     {
         if ($order->payment_status === 'paid') {
             return back()->with('info', 'Pembayaran sudah dikonfirmasi sebelumnya.');
+        }
+
+        $cashReceived = null;
+        $changeAmount = null;
+
+        if ($order->payment_method === 'cash') {
+            $request->validate([
+                'cash_received' => 'required|numeric|min:' . $order->total,
+            ], [
+                'cash_received.required' => 'Uang diterima wajib diisi.',
+                'cash_received.numeric' => 'Uang diterima harus berupa angka.',
+                'cash_received.min' => 'Uang diterima tidak boleh kurang dari total pembayaran.',
+            ]);
+
+            $cashReceived = (float) $request->cash_received;
+            $changeAmount = $cashReceived - (float) $order->total;
         }
 
         $order->update([
@@ -69,6 +85,12 @@ class OrderController extends Controller
         ]);
 
         $method = $order->payment_method === 'cash' ? 'Tunai' : 'E-Wallet';
+        if ($order->payment_method === 'cash') {
+            $receivedText = number_format($cashReceived, 0, ',', '.');
+            $changeText = number_format($changeAmount, 0, ',', '.');
+            return back()->with('success', "Pembayaran {$method} dikonfirmasi. Uang diterima Rp {$receivedText}, kembalian Rp {$changeText}. Pesanan mulai diproses.");
+        }
+
         return back()->with('success', "Pembayaran {$method} dikonfirmasi. Pesanan mulai diproses.");
     }
 

@@ -70,14 +70,18 @@
                 {{-- Tombol aksi --}}
                 <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
 
-                    {{-- BELUM BAYAR (tunai ATAU e-wallet): tampilkan tombol konfirmasi bayar --}}
+                    {{-- BELUM BAYAR --}}
                     @if($belumBayar && in_array($order->order_status, ['menunggu', 'diproses']))
-                    <form action="{{ route('admin.orders.confirm-payment', $order) }}" method="POST">
-                        @csrf
-                        <button type="submit" class="btn btn-success btn-sm">
-                            Konfirmasi Bayar
-                        </button>
-                    </form>
+                        @if($tunai)
+                            <a href="{{ route('admin.orders.show', $order) }}" class="btn btn-success btn-sm">Proses Bayar Tunai</a>
+                        @else
+                            <form action="{{ route('admin.orders.confirm-payment', $order) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="btn btn-success btn-sm">
+                                    Konfirmasi Bayar
+                                </button>
+                            </form>
+                        @endif
                     @endif
 
                     {{-- SUDAH BAYAR & DIPROSES: tampilkan tombol selesai --}}

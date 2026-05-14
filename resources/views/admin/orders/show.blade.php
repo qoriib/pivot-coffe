@@ -77,22 +77,41 @@
             <div class="card-header"><div class="card-title">Update Status</div></div>
             <div class="card-body">
 
-                {{-- Konfirmasi bayar — berlaku untuk tunai DAN e-wallet --}}
+                {{-- Konfirmasi bayar --}}
                 @if($order->payment_status === 'pending')
-                <form action="{{ route('admin.orders.confirm-payment', $order) }}" method="POST" style="margin-bottom:12px">
-                    @csrf
-                    <button type="submit" class="btn btn-success" style="width:100%">
-                        Konfirmasi Pembayaran {{ $order->payment_method === 'cash' ? 'Tunai' : 'E-Wallet' }}
-                    </button>
-                </form>
-                <div style="font-size:11px;color:#6b7280;margin-bottom:14px;text-align:center">
                     @if($order->payment_method === 'cash')
-                        Klik setelah pelanggan membayar ke kasir.
+                    <form action="{{ route('admin.orders.confirm-payment', $order) }}" method="POST" style="margin-bottom:12px">
+                        @csrf
+                        <div class="form-group">
+                            <label>Uang Diterima</label>
+                            <input type="number" name="cash_received" id="cash_received" min="0" step="100" placeholder="Contoh: 100000" value="{{ old('cash_received') }}">
+                            @error('cash_received')
+                                <div class="field-error">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div style="font-size:12px;color:#6b7280;margin:-6px 0 12px">
+                            Kembalian: <strong id="cash_change">Rp 0</strong>
+                        </div>
+                        <button type="submit" class="btn btn-success" style="width:100%">
+                            Konfirmasi Pembayaran Tunai
+                        </button>
+                    </form>
+                    <div style="font-size:11px;color:#6b7280;margin-bottom:14px;text-align:center">
+                        Isi uang yang diterima, pastikan kembalian sesuai.
+                        Status pesanan otomatis jadi Diproses.
+                    </div>
                     @else
+                    <form action="{{ route('admin.orders.confirm-payment', $order) }}" method="POST" style="margin-bottom:12px">
+                        @csrf
+                        <button type="submit" class="btn btn-success" style="width:100%">
+                            Konfirmasi Pembayaran E-Wallet
+                        </button>
+                    </form>
+                    <div style="font-size:11px;color:#6b7280;margin-bottom:14px;text-align:center">
                         Klik setelah pelanggan menunjukkan bukti transfer e-wallet.
+                        Status pesanan otomatis jadi Diproses.
+                    </div>
                     @endif
-                    Status pesanan otomatis jadi Diproses.
-                </div>
                 @endif
 
                 {{-- Update status pesanan — hanya tampil kalau sudah bayar --}}
@@ -141,3 +160,30 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    (function () {
+        var input = document.getElementById('cash_received');
+        if (!input) return;
+        var changeEl = document.getElementById('cash_change');
+        var total = {{ (int) $order->total }};
+
+        function formatRupiah(value) {
+            return 'Rp ' + value.toLocaleString('id-ID');
+        }
+
+        function updateChange() {
+            var received = parseFloat(input.value || '0');
+            var change = received - total;
+            if (isNaN(change) || change < 0) {
+                change = 0;
+            }
+            changeEl.textContent = formatRupiah(Math.floor(change));
+        }
+
+        input.addEventListener('input', updateChange);
+        updateChange();
+    })();
+</script>
+@endpush
