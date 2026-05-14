@@ -50,7 +50,7 @@
                     <td style="font-size:11px;font-family:monospace;color:#6b7280">{{ Str::limit($table->qr_token, 20) }}</td>
                     <td style="font-size:12px">
                         <a href="{{ route('customer.home', $table) }}" target="_blank" style="color:#0e6446">
-                            {{ Str::limit($table->qr_token, 16) }}...
+                            /order/table/{{ $table->id }}
                         </a>
                     </td>
                     <td>
