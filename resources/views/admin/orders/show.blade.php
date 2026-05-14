@@ -123,7 +123,9 @@
                         <select name="order_status">
                             <option value="diproses" {{ $order->order_status === 'diproses' ? 'selected' : '' }}>Diproses</option>
                             <option value="selesai">Selesai</option>
-                            <option value="dibatalkan">Dibatalkan</option>
+                            @if($order->payment_method === 'cash')
+                                <option value="dibatalkan">Dibatalkan</option>
+                            @endif
                         </select>
                     </div>
                     <button type="submit" class="btn btn-primary" style="width:100%">Simpan</button>

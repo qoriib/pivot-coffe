@@ -163,7 +163,7 @@
     </div>
 
     <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 40px;">
-        @if($order->order_status === 'menunggu')
+        @if($order->order_status === 'menunggu' && $order->payment_method === 'cash')
         <form action="{{ route('customer.cancel', $order->table->qr_token) }}" method="POST">
             @csrf
             <button type="submit" class="btn btn-block" style="background: #fff; color: var(--danger); border: 1px solid var(--danger); padding: 15px;"

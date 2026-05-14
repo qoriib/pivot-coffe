@@ -94,7 +94,7 @@
                     @endif
 
                     {{-- Batalkan --}}
-                    @if(in_array($order->order_status, ['menunggu', 'diproses']))
+                    @if(in_array($order->order_status, ['menunggu', 'diproses']) && $order->payment_method === 'cash')
                     <button type="button" class="btn btn-danger btn-sm"
                         onclick="batalkanPesanan('{{ route('admin.orders.status', $order) }}', '{{ $order->transaction_id }}')">
                         Batalkan

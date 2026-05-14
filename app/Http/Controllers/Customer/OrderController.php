@@ -39,6 +39,11 @@ class OrderController extends Controller
                 ->with('error', 'Pesanan tidak dapat dibatalkan.');
         }
 
+        if ($order->payment_method !== 'cash') {
+            return redirect()->route('customer.status', $transactionId)
+                ->with('error', 'Pesanan dengan pembayaran e-wallet tidak dapat dibatalkan.');
+        }
+
         $order->update(['order_status' => 'dibatalkan']);
 
         return redirect()->route('customer.status', $transactionId)

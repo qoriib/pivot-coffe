@@ -46,6 +46,10 @@ class OrderController extends Controller
             'order_status' => 'required|in:menunggu,diproses,selesai,dibatalkan',
         ]);
 
+        if ($order->payment_method !== 'cash' && $request->order_status === 'dibatalkan') {
+            return back()->with('error', 'Pesanan dengan pembayaran e-wallet tidak dapat dibatalkan.');
+        }
+
         $data = ['order_status' => $request->order_status];
 
         $order->update($data);
