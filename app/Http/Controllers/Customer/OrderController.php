@@ -19,6 +19,20 @@ class OrderController extends Controller
         return view('customer.status', compact('order'));
     }
 
+    public function statusPeek(string $transactionId)
+    {
+        $order = Order::with('table')
+            ->where('transaction_id', $transactionId)
+            ->firstOrFail();
+
+        return response()->json([
+            'transaction_id' => $order->transaction_id,
+            'table_number' => $order->table?->number,
+            'order_status' => $order->order_status,
+            'payment_status' => $order->payment_status,
+        ]);
+    }
+
     public function cancel(Request $request, string $qrToken)
     {
         $table = CafeTable::where('qr_token', $qrToken)->firstOrFail();

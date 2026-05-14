@@ -434,6 +434,77 @@
         }
         .cart-qty-num { font-weight: 700; font-size: 14px; min-width: 20px; text-align: center; }
 
+        /* Floating Order Status */
+        .floating-order-status {
+            position: fixed;
+            right: 18px;
+            bottom: 22px;
+            z-index: 2500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--white);
+            border: var(--border);
+            box-shadow: var(--shadow);
+            border-radius: 10px;
+            padding: 10px 14px;
+            text-decoration: none;
+            color: var(--text);
+            min-width: 220px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .floating-order-status:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 26px rgba(0,0,0,0.12);
+        }
+
+        .floating-status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #f59e0b;
+            box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.18);
+        }
+
+        .floating-status-dot.processing {
+            background: #2563eb;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.18);
+        }
+
+        .floating-status-dot.success {
+            background: #16a34a;
+            box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.18);
+        }
+
+        .floating-status-dot.danger {
+            background: #dc2626;
+            box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.18);
+        }
+
+        .floating-status-text {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .floating-status-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-light);
+        }
+
+        .floating-status-value {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .floating-status-meta {
+            font-size: 11px;
+            color: var(--text-light);
+        }
+
         @media (max-width: 768px) {
             .navbar { padding: 15px 0; background: rgba(255, 255, 255, 0.95); border-bottom: var(--border); }
             .navbar-brand { color: var(--primary); }
@@ -566,6 +637,23 @@
         @yield('content')
     </main>
 
+    @if(session('last_transaction_id'))
+    <a
+        href="{{ route('customer.status', session('last_transaction_id')) }}"
+        class="floating-order-status"
+        id="floating-order-status"
+        data-status-url="{{ route('customer.status.peek', session('last_transaction_id')) }}"
+        aria-live="polite"
+    >
+        <span class="floating-status-dot" id="floating-status-dot"></span>
+        <span class="floating-status-text">
+            <span class="floating-status-title">Status Pesanan</span>
+            <span class="floating-status-value" id="floating-status-value">Memuat...</span>
+            <span class="floating-status-meta" id="floating-status-meta">Klik untuk detail</span>
+        </span>
+    </a>
+    @endif
+
     <div id="toast-container"></div>
 
     <footer>
@@ -627,6 +715,58 @@
         @if(session('success')) cToast(@json(session('success')), 'success'); @endif
         @if(session('error')) cToast(@json(session('error')), 'error'); @endif
         @if(session('waiter_called')) cToast(@json(session('waiter_called')), 'success'); @endif
+
+        // Floating order status polling
+        (function () {
+            var widget = document.getElementById('floating-order-status');
+            if (!widget) return;
+
+            var url = widget.getAttribute('data-status-url');
+            var dot = document.getElementById('floating-status-dot');
+            var valueEl = document.getElementById('floating-status-value');
+            var metaEl = document.getElementById('floating-status-meta');
+
+            function statusLabel(status) {
+                if (status === 'menunggu') return 'Menunggu Konfirmasi';
+                if (status === 'diproses') return 'Sedang Diproses';
+                if (status === 'selesai') return 'Selesai';
+                if (status === 'dibatalkan') return 'Dibatalkan';
+                return 'Status Tidak Diketahui';
+            }
+
+            function dotClass(status) {
+                if (status === 'diproses') return 'processing';
+                if (status === 'selesai') return 'success';
+                if (status === 'dibatalkan') return 'danger';
+                return '';
+            }
+
+            function updateWidget(data) {
+                var label = statusLabel(data.order_status);
+                valueEl.textContent = label;
+                metaEl.textContent = 'Meja ' + data.table_number + ' • ' + data.transaction_id;
+                dot.className = 'floating-status-dot ' + dotClass(data.order_status);
+
+                if (data.order_status === 'selesai' || data.order_status === 'dibatalkan') {
+                    clearInterval(window.__orderStatusInterval);
+                }
+            }
+
+            function fetchStatus() {
+                fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                    .then(function (res) { return res.ok ? res.json() : null; })
+                    .then(function (data) {
+                        if (!data) return;
+                        updateWidget(data);
+                    })
+                    .catch(function () {
+                        valueEl.textContent = 'Status tidak tersedia';
+                    });
+            }
+
+            fetchStatus();
+            window.__orderStatusInterval = setInterval(fetchStatus, 5000);
+        })();
     </script>
     @stack('scripts')
 </body>

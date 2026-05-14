@@ -18,6 +18,8 @@ Route::prefix('order')->name('customer.')->group(function () {
     // Status & feedback (no qr_token needed)
     Route::get('/status/{transaction_id}', [Customer\OrderController::class, 'status'])
         ->name('status');
+    Route::get('/status/{transaction_id}/peek', [Customer\OrderController::class, 'statusPeek'])
+        ->name('status.peek');
     Route::get('/feedback/{transaction_id}', [Customer\FeedbackController::class, 'show'])
         ->name('feedback');
     Route::post('/feedback/{transaction_id}', [Customer\FeedbackController::class, 'store'])
