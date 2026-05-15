@@ -9,7 +9,6 @@
         display: flex;
         flex-direction: column;
         gap: 30px;
-        padding-bottom: 80px;
     }
 
     @media (min-width: 992px) {
@@ -516,6 +515,23 @@
                 </div>
                 @endforelse
             </div>
+
+            {{-- Mobile Promo Bottom --}}
+            @if($promos->count() > 0)
+            <div class="d-lg-none" style="margin-top: 2rem;">
+                <div class="sidebar-card">
+                    <div class="sidebar-card-header">Promo Spesial</div>
+                    <div class="sidebar-card-body">
+                        @foreach($promos as $promo)
+                        <div class="promo-card-mini" style="background: var(--bg); padding: 15px; border-radius: 15px; margin-bottom: 10px; border: 1px dashed var(--accent);">
+                            <div style="font-weight: 700; color: var(--primary); font-size: 14px; margin-bottom: 5px;">{{ $promo->code }}</div>
+                            <div style="font-size: 12px; color: var(--text-light); line-height: 1.4;">{{ $promo->description }}</div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+            @endif
         </div>
     </div>
 </div>
