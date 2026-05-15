@@ -36,11 +36,11 @@ class MenuController extends Controller
 
         $menus = $menuQuery->get();
 
-        // Best sellers: top 5 by total quantity sold
+        // Best sellers: top 3 by total quantity sold
         $bestSellerIds = OrderItem::selectRaw('menu_id, SUM(quantity) as total_qty')
             ->groupBy('menu_id')
             ->orderByDesc('total_qty')
-            ->limit(5)
+            ->limit(3)
             ->pluck('menu_id');
 
         $bestSellers = Menu::whereIn('id', $bestSellerIds)

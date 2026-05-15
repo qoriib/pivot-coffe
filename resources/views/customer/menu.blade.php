@@ -271,6 +271,98 @@
         color: var(--text-light);
     }
 
+    /* ══ BEST SELLER ════════════════════════════════════════════════════ */
+    .best-seller-section {
+        margin-bottom: 30px;
+        background: white;
+        border-radius: 22px;
+        border: var(--border);
+        box-shadow: var(--shadow);
+        padding: 24px;
+    }
+
+    .best-seller-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 18px;
+    }
+
+    .best-seller-title {
+        font-size: 1.4rem;
+        color: var(--primary);
+        font-family: 'Playfair Display', serif;
+    }
+
+    .best-seller-subtitle {
+        font-size: 12px;
+        color: var(--text-light);
+    }
+
+    .best-seller-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 18px;
+    }
+
+    .best-card {
+        background: linear-gradient(135deg, #ffffff 0%, #fdf6ee 100%);
+        border-radius: 18px;
+        padding: 16px;
+        border: 1px solid rgba(212, 163, 115, 0.35);
+        display: flex;
+        gap: 14px;
+        align-items: center;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .best-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+    }
+
+    .best-card img {
+        width: 70px;
+        height: 70px;
+        border-radius: 14px;
+        object-fit: cover;
+        flex-shrink: 0;
+    }
+
+    .best-card-name {
+        font-weight: 700;
+        color: var(--primary);
+        font-size: 15px;
+        margin-bottom: 6px;
+    }
+
+    .best-card-price {
+        font-weight: 600;
+        color: var(--primary-dark);
+        font-size: 13px;
+    }
+
+    .best-card-action {
+        margin-top: 8px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .best-card-badge {
+        background: var(--accent);
+        color: var(--primary-dark);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        padding: 4px 8px;
+        border-radius: 999px;
+    }
+
     @media (max-width: 991px) {
         .menu-sidebar { display: none; }
     }
@@ -360,6 +452,33 @@
                     <input type="text" name="search" value="{{ $search }}" placeholder="Cari kopi favoritmu...">
                 </form>
             </div>
+
+            {{-- Best Seller --}}
+            @if($bestSellers->count() > 0)
+            <div class="best-seller-section">
+                <div class="best-seller-header">
+                    <div>
+                        <div class="best-seller-title">Menu Terlaris</div>
+                        <div class="best-seller-subtitle">Paling banyak dipesan minggu ini</div>
+                    </div>
+                    <div class="best-card-badge">Best Seller</div>
+                </div>
+                <div class="best-seller-grid">
+                    @foreach($bestSellers as $menu)
+                    <a href="{{ route('customer.menu.detail', [$table->qr_token, $menu]) }}" class="best-card">
+                        <img src="{{ $menu->image_url }}" alt="{{ $menu->name }}" loading="lazy">
+                        <div>
+                            <div class="best-card-name">{{ $menu->name }}</div>
+                            <div class="best-card-price">Rp {{ number_format($menu->price, 0, ',', '.') }}</div>
+                            <div class="best-card-action">
+                                <span style="font-size:11px;color:var(--text-light)">Lihat detail</span>
+                            </div>
+                        </div>
+                    </a>
+                    @endforeach
+                </div>
+            </div>
+            @endif
 
             {{-- Menu Grid --}}
             <div class="menu-grid">
