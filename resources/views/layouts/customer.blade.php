@@ -434,12 +434,38 @@
         }
         .cart-qty-num { font-weight: 700; font-size: 14px; min-width: 20px; text-align: center; }
 
-        /* Floating Order Status */
-        .floating-order-status {
+        /* Floating Order Status Container */
+        #floating-order-status-container {
             position: fixed;
             right: 18px;
             bottom: 22px;
             z-index: 2500;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 40vh;
+            overflow-y: auto;
+            width: 280px;
+            pointer-events: auto;
+            scrollbar-width: thin;
+        }
+
+        #floating-order-status-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        #floating-order-status-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        #floating-order-status-container::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.15);
+            border-radius: 3px;
+        }
+        #floating-order-status-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .floating-order-status {
+            pointer-events: auto;
             display: flex;
             align-items: center;
             gap: 12px;
@@ -447,16 +473,18 @@
             border: var(--border);
             box-shadow: var(--shadow);
             border-radius: 10px;
-            padding: 10px 14px;
+            padding: 12px 14px;
             text-decoration: none;
             color: var(--text);
-            min-width: 220px;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            position: relative;
+            min-width: 240px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.3s ease;
+            animation: slideInUp 0.3s ease-out;
         }
 
-        .floating-order-status:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 26px rgba(0,0,0,0.12);
+        @keyframes slideInUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
 
         .floating-status-dot {
@@ -637,22 +665,33 @@
         @yield('content')
     </main>
 
-    @if(session('last_transaction_id'))
-    <a
-        href="{{ route('customer.status', session('last_transaction_id')) }}"
-        class="floating-order-status"
-        id="floating-order-status"
-        data-status-url="{{ route('customer.status.peek', session('last_transaction_id')) }}"
-        aria-live="polite"
-    >
-        <span class="floating-status-dot" id="floating-status-dot"></span>
-        <span class="floating-status-text">
-            <span class="floating-status-title">Status Pesanan</span>
-            <span class="floating-status-value" id="floating-status-value">Memuat...</span>
-            <span class="floating-status-meta" id="floating-status-meta">Klik untuk detail</span>
-        </span>
-    </a>
-    @endif
+    @php
+        $activeTrxs = session('active_transactions', []);
+        $lastTrx = session('last_transaction_id');
+        if ($lastTrx && !in_array($lastTrx, $activeTrxs)) {
+            $activeTrxs[] = $lastTrx;
+        }
+    @endphp
+    <div id="floating-order-status-container" class="no-print">
+        @foreach($activeTrxs as $trxId)
+            <div
+                class="floating-order-status"
+                id="floating-order-status-{{ $trxId }}"
+                data-trx-id="{{ $trxId }}"
+                data-status-url="{{ route('customer.status.peek', $trxId) }}"
+                style="display: none;"
+            >
+                <a href="{{ route('customer.status', $trxId) }}" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 12px; width: 100%;">
+                    <span class="floating-status-dot" id="floating-status-dot-{{ $trxId }}"></span>
+                    <span class="floating-status-text">
+                        <span class="floating-status-title">Status Pesanan</span>
+                        <span class="floating-status-value" id="floating-status-value-{{ $trxId }}">Memuat...</span>
+                        <span class="floating-status-meta" id="floating-status-meta-{{ $trxId }}">{{ $trxId }}</span>
+                    </span>
+                </a>
+            </div>
+        @endforeach
+    </div>
 
     <div id="toast-container"></div>
 
@@ -718,13 +757,8 @@
 
         // Floating order status polling
         (function () {
-            var widget = document.getElementById('floating-order-status');
-            if (!widget) return;
-
-            var url = widget.getAttribute('data-status-url');
-            var dot = document.getElementById('floating-status-dot');
-            var valueEl = document.getElementById('floating-status-value');
-            var metaEl = document.getElementById('floating-status-meta');
+            var widgets = document.querySelectorAll('#floating-order-status-container .floating-order-status');
+            if (widgets.length === 0) return;
 
             function statusLabel(status) {
                 if (status === 'menunggu') return 'Menunggu Konfirmasi';
@@ -741,31 +775,38 @@
                 return '';
             }
 
-            function updateWidget(data) {
-                var label = statusLabel(data.order_status);
-                valueEl.textContent = label;
-                metaEl.textContent = 'Meja ' + data.table_number + ' • ' + data.transaction_id;
-                dot.className = 'floating-status-dot ' + dotClass(data.order_status);
+            widgets.forEach(function (widget) {
+                var trxId = widget.getAttribute('data-trx-id');
+                widget.style.display = 'flex';
 
-                if (data.order_status === 'selesai' || data.order_status === 'dibatalkan') {
-                    clearInterval(window.__orderStatusInterval);
+                var url = widget.getAttribute('data-status-url');
+                var dot = document.getElementById('floating-status-dot-' + trxId);
+                var valueEl = document.getElementById('floating-status-value-' + trxId);
+                var metaEl = document.getElementById('floating-status-meta-' + trxId);
+                var intervalId = null;
+
+                function fetchStatus() {
+                    fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                        .then(function (res) { return res.ok ? res.json() : null; })
+                        .then(function (data) {
+                            if (!data) return;
+                            var label = statusLabel(data.order_status);
+                            valueEl.textContent = label;
+                            metaEl.textContent = 'Meja ' + data.table_number + ' • ' + data.transaction_id;
+                            dot.className = 'floating-status-dot ' + dotClass(data.order_status);
+
+                            if (data.order_status === 'selesai' || data.order_status === 'dibatalkan') {
+                                clearInterval(intervalId);
+                            }
+                        })
+                        .catch(function () {
+                            valueEl.textContent = 'Status tidak tersedia';
+                        });
                 }
-            }
 
-            function fetchStatus() {
-                fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-                    .then(function (res) { return res.ok ? res.json() : null; })
-                    .then(function (data) {
-                        if (!data) return;
-                        updateWidget(data);
-                    })
-                    .catch(function () {
-                        valueEl.textContent = 'Status tidak tersedia';
-                    });
-            }
-
-            fetchStatus();
-            window.__orderStatusInterval = setInterval(fetchStatus, 5000);
+                fetchStatus();
+                intervalId = setInterval(fetchStatus, 5000);
+            });
         })();
     </script>
     @stack('scripts')

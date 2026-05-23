@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}">
-    <title>Login Admin — Pivot Caffe</title>
+    <title>Lupa Password Admin — Pivot Caffe</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -99,7 +99,6 @@
             transition: all 0.2s ease;
         }
         input:focus { outline: none; border-color: var(--primary); background: #ffffff; box-shadow: 0 0 0 3px rgba(27, 67, 50, 0.15); }
-        .field-error { color: var(--danger); font-size: 12px; margin-top: 6px; }
         .btn-login {
             width: 100%;
             padding: 12px;
@@ -154,8 +153,8 @@
                 <img src="{{ asset('images/logo.png') }}" alt="Pivot Caffe">
             </div>
             <div class="brand-text">
-                <h1>Masuk Admin</h1>
-                <p>Kelola pesanan secara real-time</p>
+                <h1>Lupa Password</h1>
+                <p>Kirim tautan reset kata sandi admin</p>
             </div>
         </div>
 
@@ -166,22 +165,17 @@
             <div class="alert-error">{{ $errors->first('email') }}</div>
         @endif
 
-        <form action="{{ route('admin.login.post') }}" method="POST">
+        <form action="{{ route('admin.password.email') }}" method="POST">
             @csrf
             <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" value="{{ old('email') }}" required autofocus>
+                <label for="email">Email Admin</label>
+                <input type="email" id="email" name="email" value="{{ old('email') }}" required autofocus placeholder="Masukkan email terdaftar">
             </div>
-            <div class="form-group">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                    <label for="password" style="margin-bottom:0;">Password</label>
-                    <a href="{{ route('admin.password.request') }}" style="font-size:12px; color:var(--primary); text-decoration:none; font-weight:500;">Lupa Password?</a>
-                </div>
-                <input type="password" id="password" name="password" required>
-            </div>
-            <button type="submit" class="btn-login">Masuk</button>
+            <button type="submit" class="btn-login">Kirim Link Reset</button>
         </form>
-        <div class="helper-text">Butuh bantuan? Hubungi manajer outlet.</div>
+        <div class="helper-text">
+            <a href="{{ route('admin.login') }}" style="color: var(--primary); text-decoration: none; font-weight: 600;">Kembali ke Halaman Login</a>
+        </div>
     </section>
 </body>
 </html>

@@ -36,4 +36,9 @@ class Admin extends Authenticatable
     {
         return $this->role === 'superadmin';
     }
+
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new \App\Notifications\AdminResetPasswordNotification($token));
+    }
 }

@@ -112,6 +112,13 @@ class CheckoutController extends Controller
         session()->forget('cart_' . $table->id);
         session(['last_transaction_id' => $transactionId]);
 
+        // Track active transactions for customer floating status (stackable)
+        $activeTrxs = session('active_transactions', []);
+        if (!in_array($transactionId, $activeTrxs)) {
+            $activeTrxs[] = $transactionId;
+            session(['active_transactions' => $activeTrxs]);
+        }
+
         // Handle payment method
         // E-wallet diperlakukan sama seperti tunai — konfirmasi manual oleh admin
         // Midtrans payment gateway dinonaktifkan sementara

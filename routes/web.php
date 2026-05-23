@@ -56,9 +56,16 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('/login', [Admin\AuthController::class, 'login'])->name('login.post');
     Route::post('/logout', [Admin\AuthController::class, 'logout'])->name('logout');
 
+    // Forgot/Reset password routes
+    Route::get('/forgot-password', [Admin\ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+    Route::post('/forgot-password', [Admin\ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+    Route::get('/reset-password/{token}', [Admin\ResetPasswordController::class, 'showResetForm'])->name('password.reset');
+    Route::post('/reset-password', [Admin\ResetPasswordController::class, 'reset'])->name('password.update');
+
     // Protected admin routes
     Route::middleware(\App\Http\Middleware\AdminAuthenticate::class)->group(function () {
         Route::get('/dashboard', [Admin\DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/notifications/peek', [Admin\DashboardController::class, 'notificationsPeek'])->name('notifications.peek');
 
         // Orders
         Route::get('/orders/monitor', [Admin\OrderController::class, 'monitor'])->name('orders.monitor');

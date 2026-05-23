@@ -302,6 +302,102 @@
             to   { width: 0%; }
         }
         .toast { position: relative; overflow: hidden; }
+
+        /* Admin Floating Notifications Stack */
+        #admin-notifications-container {
+            position: fixed;
+            right: 18px;
+            bottom: 22px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 40vh;
+            overflow-y: auto;
+            width: 320px;
+            pointer-events: auto;
+            scrollbar-width: thin;
+        }
+
+        #admin-notifications-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        #admin-notifications-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        #admin-notifications-container::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.15);
+            border-radius: 3px;
+        }
+        #admin-notifications-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .admin-notification-card {
+            pointer-events: auto;
+            background: var(--white);
+            border: 1px solid var(--secondary);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            position: relative;
+            animation: adminSlideInUp 0.3s ease-out;
+            transition: all 0.3s ease;
+        }
+
+        @keyframes adminSlideInUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .admin-notification-card.new-order {
+            border-left: 4px solid var(--primary);
+        }
+
+        .admin-notification-card.waiter-call {
+            border-left: 4px solid var(--danger);
+        }
+
+        .admin-notification-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        .admin-notification-title {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .admin-notification-body {
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        .admin-notification-footer {
+            display: flex;
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        .admin-notification-action {
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+        }
     </style>
     @stack('styles')
 </head>
@@ -309,6 +405,11 @@
 
 {{-- ── Toast Container ─────────────────────────────────────────────── --}}
 <div id="toast-container"></div>
+
+{{-- ── Admin Floating Notifications Container ────────────────────── --}}
+@auth('admin')
+<div id="admin-notifications-container"></div>
+@endauth
 
 {{-- ── Delete Confirm Modal ─────────────────────────────────────────── --}}
 <div class="modal-backdrop" id="delete-modal-backdrop">
@@ -627,6 +728,161 @@ document.addEventListener('DOMContentLoaded', function() {
         openModal(@json(session('open_modal')));
     @endif
 });
+
+@auth('admin')
+// Real-time Admin Floating Notifications
+(function() {
+    const container = document.getElementById('admin-notifications-container');
+    if (!container) return;
+
+    let seenIds = { orders: [], waiter_calls: [] };
+    let isFirstLoad = true;
+
+    // Sound chime generator using Web Audio API
+    function playChime() {
+        try {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            
+            // Play double note chime
+            const osc1 = audioCtx.createOscillator();
+            const gain1 = audioCtx.createGain();
+            osc1.connect(gain1);
+            gain1.connect(audioCtx.destination);
+            osc1.type = 'sine';
+            osc1.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+            gain1.gain.setValueAtTime(0.08, audioCtx.currentTime);
+            osc1.start();
+            osc1.stop(audioCtx.currentTime + 0.12);
+            
+            setTimeout(() => {
+                const osc2 = audioCtx.createOscillator();
+                const gain2 = audioCtx.createGain();
+                osc2.connect(gain2);
+                gain2.connect(audioCtx.destination);
+                osc2.type = 'sine';
+                osc2.frequency.setValueAtTime(659.25, audioCtx.currentTime); // E5
+                gain2.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                osc2.start();
+                osc2.stop(audioCtx.currentTime + 0.22);
+            }, 120);
+        } catch (e) {
+            console.log('Web Audio API not allowed or supported yet');
+        }
+    }
+
+    function fetchAdminNotifications() {
+        fetch('{{ route("admin.notifications.peek") }}', {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+            if (!data) return;
+
+            let hasNewItem = false;
+
+            // Process Orders
+            const currentOrderIds = [];
+            data.orders.forEach(order => {
+                currentOrderIds.push(order.id);
+                
+                // If not already rendered
+                if (!document.getElementById(`admin-notif-order-${order.id}`)) {
+                    const card = document.createElement('div');
+                    card.className = 'admin-notification-card new-order';
+                    card.id = `admin-notif-order-${order.id}`;
+                    card.innerHTML = `
+                        <div class="admin-notification-header">
+                            <span class="admin-notification-title" style="color: var(--primary); font-weight:700;">
+                                <i class="fas fa-shopping-basket"></i> Pesanan Baru
+                            </span>
+                        </div>
+                        <div class="admin-notification-body">
+                            <strong>Meja ${order.table_number}</strong> — ${order.customer_name}<br>
+                            Total: Rp ${new Intl.NumberFormat('id-ID').format(order.total)}<br>
+                            <span style="font-size:10px; color:var(--text-muted);">${order.created_at_diff}</span>
+                        </div>
+                        <div class="admin-notification-footer">
+                            <a href="${order.url}" class="admin-notification-action btn-primary" style="color:white;">Detail</a>
+                        </div>
+                    `;
+                    container.appendChild(card);
+
+                    // If not first load and not seen before, trigger chime and new item flag
+                    if (!isFirstLoad && seenIds.orders.indexOf(order.id) === -1) {
+                        hasNewItem = true;
+                    }
+                }
+            });
+
+            // Process Waiter Calls
+            const currentCallIds = [];
+            data.waiter_calls.forEach(call => {
+                currentCallIds.push(call.id);
+
+                if (!document.getElementById(`admin-notif-call-${call.id}`)) {
+                    const card = document.createElement('div');
+                    card.className = 'admin-notification-card waiter-call';
+                    card.id = `admin-notif-call-${call.id}`;
+                    card.innerHTML = `
+                        <div class="admin-notification-header">
+                            <span class="admin-notification-title" style="color: var(--danger); font-weight:700;">
+                                <i class="fas fa-bell"></i> Panggilan Waiter
+                            </span>
+                        </div>
+                        <div class="admin-notification-body">
+                            <strong>Meja ${call.table_number}</strong> memanggil pelayan.<br>
+                            <span style="font-size:10px; color:var(--text-muted);">${call.created_at_diff}</span>
+                        </div>
+                        <div class="admin-notification-footer">
+                            <form action="${call.done_url}" method="POST" style="display:inline;">
+                                <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="admin-notification-action btn-success" style="color:white; border:none;">Selesai</button>
+                            </form>
+                            <a href="${call.url}" class="admin-notification-action btn-secondary" style="color:var(--text); border:1px solid var(--secondary);">Lihat Semua</a>
+                        </div>
+                    `;
+                    container.appendChild(card);
+
+                    if (!isFirstLoad && seenIds.waiter_calls.indexOf(call.id) === -1) {
+                        hasNewItem = true;
+                    }
+                }
+            });
+
+            // Remove cards for items that are no longer pending (resolved elsewhere)
+            document.querySelectorAll('#admin-notifications-container .admin-notification-card').forEach(card => {
+                const cardId = card.id;
+                if (cardId.startsWith('admin-notif-order-')) {
+                    const id = parseInt(cardId.replace('admin-notif-order-', ''));
+                    if (currentOrderIds.indexOf(id) === -1) {
+                        card.remove();
+                    }
+                } else if (cardId.startsWith('admin-notif-call-')) {
+                    const id = parseInt(cardId.replace('admin-notif-call-', ''));
+                    if (currentCallIds.indexOf(id) === -1) {
+                        card.remove();
+                    }
+                }
+            });
+
+            // Update seen IDs
+            seenIds.orders = currentOrderIds;
+            seenIds.waiter_calls = currentCallIds;
+            
+            if (hasNewItem) {
+                playChime();
+            }
+
+            isFirstLoad = false;
+        })
+        .catch(err => console.error("Error fetching notifications: ", err));
+    }
+
+    // Run immediately, then poll every 5s
+    fetchAdminNotifications();
+    setInterval(fetchAdminNotifications, 5000);
+})();
+@endauth
 </script>
 
 @stack('scripts')

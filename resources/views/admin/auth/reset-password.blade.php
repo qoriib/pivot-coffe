@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}">
-    <title>Login Admin — Pivot Caffe</title>
+    <title>Reset Password Admin — Pivot Caffe</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -99,7 +99,6 @@
             transition: all 0.2s ease;
         }
         input:focus { outline: none; border-color: var(--primary); background: #ffffff; box-shadow: 0 0 0 3px rgba(27, 67, 50, 0.15); }
-        .field-error { color: var(--danger); font-size: 12px; margin-top: 6px; }
         .btn-login {
             width: 100%;
             padding: 12px;
@@ -119,15 +118,6 @@
             background: #fef2f2;
             color: #991b1b;
             border: 1px solid #fecaca;
-            padding: 10px 14px;
-            border-radius: 10px;
-            font-size: 13px;
-            margin-bottom: 14px;
-        }
-        .alert-success {
-            background: #ecfdf5;
-            color: #166534;
-            border: 1px solid #bbf7d0;
             padding: 10px 14px;
             border-radius: 10px;
             font-size: 13px;
@@ -154,34 +144,45 @@
                 <img src="{{ asset('images/logo.png') }}" alt="Pivot Caffe">
             </div>
             <div class="brand-text">
-                <h1>Masuk Admin</h1>
-                <p>Kelola pesanan secara real-time</p>
+                <h1>Reset Password</h1>
+                <p>Ubah kata sandi akun admin Anda</p>
             </div>
         </div>
 
-        @if(session('success'))
-            <div class="alert-success">{{ session('success') }}</div>
-        @endif
-        @if($errors->has('email'))
-            <div class="alert-error">{{ $errors->first('email') }}</div>
+        @if($errors->any())
+            <div class="alert-error">
+                <ul style="list-style: none; padding: 0;">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
         @endif
 
-        <form action="{{ route('admin.login.post') }}" method="POST">
+        <form action="{{ route('admin.password.update') }}" method="POST">
             @csrf
+            <input type="hidden" name="token" value="{{ $token }}">
+
             <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" value="{{ old('email') }}" required autofocus>
+                <label for="email">Email Admin</label>
+                <input type="email" id="email" name="email" value="{{ $email ?? old('email') }}" required autofocus placeholder="Email terdaftar" readonly>
             </div>
+
             <div class="form-group">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                    <label for="password" style="margin-bottom:0;">Password</label>
-                    <a href="{{ route('admin.password.request') }}" style="font-size:12px; color:var(--primary); text-decoration:none; font-weight:500;">Lupa Password?</a>
-                </div>
-                <input type="password" id="password" name="password" required>
+                <label for="password">Password Baru</label>
+                <input type="password" id="password" name="password" required placeholder="Minimal 8 karakter">
             </div>
-            <button type="submit" class="btn-login">Masuk</button>
+
+            <div class="form-group">
+                <label for="password_confirmation">Konfirmasi Password Baru</label>
+                <input type="password" id="password_confirmation" name="password_confirmation" required placeholder="Ulangi password baru">
+            </div>
+
+            <button type="submit" class="btn-login">Ubah Password</button>
         </form>
-        <div class="helper-text">Butuh bantuan? Hubungi manajer outlet.</div>
+        <div class="helper-text">
+            <a href="{{ route('admin.login') }}" style="color: var(--primary); text-decoration: none; font-weight: 600;">Kembali ke Halaman Login</a>
+        </div>
     </section>
 </body>
 </html>

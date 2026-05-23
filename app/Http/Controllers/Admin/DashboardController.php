@@ -132,4 +132,38 @@ class DashboardController extends Controller
             'tableStatuses'
         ));
     }
+
+    public function notificationsPeek()
+    {
+        $pendingOrders = Order::with('table')
+            ->where('order_status', 'menunggu')
+            ->latest()
+            ->get()
+            ->map(fn($order) => [
+                'id' => $order->id,
+                'transaction_id' => $order->transaction_id,
+                'table_number' => $order->table?->number,
+                'customer_name' => $order->customer_name,
+                'total' => (float) $order->total,
+                'created_at_diff' => $order->created_at->diffForHumans(),
+                'url' => route('admin.orders.show', $order->id)
+            ]);
+
+        $pendingWaiterCalls = WaiterCall::with('table')
+            ->where('status', 'pending')
+            ->latest()
+            ->get()
+            ->map(fn($call) => [
+                'id' => $call->id,
+                'table_number' => $call->table?->number,
+                'created_at_diff' => $call->created_at->diffForHumans(),
+                'done_url' => route('admin.waiter-calls.done', $call->id),
+                'url' => route('admin.waiter-calls.index')
+            ]);
+
+        return response()->json([
+            'orders' => $pendingOrders,
+            'waiter_calls' => $pendingWaiterCalls,
+        ]);
+    }
 }
