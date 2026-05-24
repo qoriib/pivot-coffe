@@ -666,10 +666,36 @@
     </main>
 
     @php
-        $activeTrxs = session('active_transactions', []);
-        $lastTrx = session('last_transaction_id');
-        if ($lastTrx && !in_array($lastTrx, $activeTrxs)) {
-            $activeTrxs[] = $lastTrx;
+        $currentTableId = session('table_id');
+        $activeTrxs = [];
+        if ($currentTableId) {
+            $sessionTrxs = session('active_transactions', []);
+            $lastTrx = session('last_transaction_id');
+            if ($lastTrx && !in_array($lastTrx, $sessionTrxs)) {
+                $sessionTrxs[] = $lastTrx;
+            }
+            if (!empty($sessionTrxs)) {
+                // Fetch the actual transactions that are still active (not cancelled, or finished but not rated)
+                $dbActiveOrders = \App\Models\Order::whereIn('transaction_id', $sessionTrxs)
+                    ->where(function($query) {
+                        $query->whereNotIn('order_status', ['selesai', 'dibatalkan'])
+                              ->orWhere(function($q) {
+                                  $q->where('order_status', 'selesai')
+                                    ->doesntHave('feedback');
+                              });
+                    })
+                    ->get();
+                
+                // Only display transactions belonging to the current table
+                $activeTrxs = $dbActiveOrders->where('table_id', $currentTableId)->pluck('transaction_id')->toArray();
+                
+                // Sync session active_transactions so it only contains valid active transactions
+                $newSessionTrxs = $dbActiveOrders->pluck('transaction_id')->toArray();
+                session(['active_transactions' => $newSessionTrxs]);
+                if ($lastTrx && !in_array($lastTrx, $newSessionTrxs)) {
+                    session()->forget('last_transaction_id');
+                }
+            }
         }
     @endphp
     <div id="floating-order-status-container" class="no-print">
@@ -790,6 +816,11 @@
                         .then(function (res) { return res.ok ? res.json() : null; })
                         .then(function (data) {
                             if (!data) return;
+                            if (data.has_feedback) {
+                                widget.style.display = 'none';
+                                clearInterval(intervalId);
+                                return;
+                            }
                             var label = statusLabel(data.order_status);
                             valueEl.textContent = label;
                             metaEl.textContent = 'Meja ' + data.table_number + ' • ' + data.transaction_id;

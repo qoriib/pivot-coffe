@@ -40,6 +40,16 @@ class FeedbackController extends Controller
             'comment'  => $request->comment,
         ]);
 
+        // Clean up session for this transaction since rating is complete
+        $activeTrxs = session('active_transactions', []);
+        if (($key = array_search($transactionId, $activeTrxs)) !== false) {
+            unset($activeTrxs[$key]);
+            session(['active_transactions' => array_values($activeTrxs)]);
+        }
+        if (session('last_transaction_id') === $transactionId) {
+            session()->forget('last_transaction_id');
+        }
+
         return redirect()->route('customer.status', $transactionId)
             ->with('success', 'Terima kasih atas feedback Anda!');
     }

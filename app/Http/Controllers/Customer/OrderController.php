@@ -21,7 +21,7 @@ class OrderController extends Controller
 
     public function statusPeek(string $transactionId)
     {
-        $order = Order::with('table')
+        $order = Order::with(['table', 'feedback'])
             ->where('transaction_id', $transactionId)
             ->firstOrFail();
 
@@ -30,6 +30,7 @@ class OrderController extends Controller
             'table_number' => $order->table?->number,
             'order_status' => $order->order_status,
             'payment_status' => $order->payment_status,
+            'has_feedback' => $order->feedback !== null,
         ]);
     }
 
