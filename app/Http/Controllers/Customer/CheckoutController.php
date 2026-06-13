@@ -92,13 +92,17 @@ class CheckoutController extends Controller
                 'notes'          => $request->notes,
             ]);
 
-            foreach ($cart as $menuId => $item) {
+            foreach ($cart as $cartKey => $item) {
+                $parts = explode('_', $cartKey);
+                $realMenuId = (int) $parts[0];
+
                 OrderItem::create([
                     'order_id'   => $order->id,
-                    'menu_id'    => $menuId,
+                    'menu_id'    => $realMenuId,
                     'quantity'   => $item['quantity'],
                     'unit_price' => $item['unit_price'],
                     'subtotal'   => $item['unit_price'] * $item['quantity'],
+                    'notes'      => $item['notes'] ?? null,
                 ]);
             }
 

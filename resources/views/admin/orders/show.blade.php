@@ -52,7 +52,14 @@
                     <tbody>
                         @foreach($order->items as $item)
                         <tr>
-                            <td>{{ $item->menu->name }}</td>
+                            <td>
+                                <div>{{ $item->menu->name }}</div>
+                                @if($item->notes)
+                                <div style="font-size:11px;color:#d4a373;margin-top:2px">
+                                    <strong>Catatan:</strong> {{ $item->notes }}
+                                </div>
+                                @endif
+                            </td>
                             <td>{{ $item->quantity }}</td>
                             <td>Rp {{ number_format($item->unit_price, 0, ',', '.') }}</td>
                             <td>Rp {{ number_format($item->subtotal, 0, ',', '.') }}</td>

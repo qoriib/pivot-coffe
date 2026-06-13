@@ -415,6 +415,11 @@
                     <div class="order-item-row">
                         <div class="order-item-info">
                             <div class="order-item-name">{{ $item['name'] }}</div>
+                            @if(!empty($item['notes']))
+                            <div style="font-size: 11px; color: var(--accent); font-weight: 500; margin-bottom: 5px;">
+                                <i class="far fa-comment-dots"></i> {{ $item['notes'] }}
+                            </div>
+                            @endif
                             <div style="display:flex; align-items:center; gap:10px;">
                                 <span class="order-item-qty">{{ $item['quantity'] }}x</span>
                                 <span class="order-item-meta">@ Rp {{ number_format($item['unit_price'], 0, ',', '.') }}</span>

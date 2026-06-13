@@ -20,6 +20,7 @@ class CartController extends Controller
         $request->validate([
             'menu_id'  => 'required|exists:menus,id',
             'quantity' => 'required|integer|min:1',
+            'notes'    => 'nullable|string|max:255',
         ]);
 
         $menu = Menu::findOrFail($request->menu_id);
@@ -31,14 +32,18 @@ class CartController extends Controller
         $cartKey = $this->getCartKey($table->id);
         $cart = session($cartKey, []);
 
-        $menuId = (string) $menu->id;
-        if (isset($cart[$menuId])) {
-            $cart[$menuId]['quantity'] += (int) $request->quantity;
+        $notes = $request->input('notes');
+        $itemKey = $menu->id . '_' . md5($notes ?? '');
+
+        if (isset($cart[$itemKey])) {
+            $cart[$itemKey]['quantity'] += (int) $request->quantity;
         } else {
-            $cart[$menuId] = [
+            $cart[$itemKey] = [
+                'menu_id'    => $menu->id,
                 'name'       => $menu->name,
                 'quantity'   => (int) $request->quantity,
                 'unit_price' => (float) $menu->price,
+                'notes'      => $notes,
             ];
         }
 
@@ -51,7 +56,7 @@ class CartController extends Controller
     {
         $table = CafeTable::where('qr_token', $qrToken)->firstOrFail();
         $request->validate([
-            'menu_id'  => 'required|exists:menus,id',
+            'menu_id'  => 'required|string',
             'quantity' => 'required|integer|min:1',
         ]);
 
@@ -70,7 +75,7 @@ class CartController extends Controller
     public function remove(Request $request, string $qrToken)
     {
         $table = CafeTable::where('qr_token', $qrToken)->firstOrFail();
-        $request->validate(['menu_id' => 'required|exists:menus,id']);
+        $request->validate(['menu_id' => 'required|string']);
 
         $cartKey = $this->getCartKey($table->id);
         $cart = session($cartKey, []);

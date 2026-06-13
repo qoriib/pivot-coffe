@@ -44,8 +44,15 @@
                 {{-- Items --}}
                 <div style="margin-bottom:12px">
                     @foreach($order->items as $item)
-                    <div style="display:flex;justify-content:space-between;font-size:13px;padding:3px 0">
-                        <span>{{ $item->quantity }}x {{ $item->menu->name }}</span>
+                    <div style="display:flex;justify-content:space-between;font-size:13px;padding:3px 0;flex-wrap:wrap">
+                        <span>
+                            {{ $item->quantity }}x {{ $item->menu->name }}
+                            @if($item->notes)
+                            <div style="font-size:11px;color:#d4a373;padding-left:18px;margin-top:1px">
+                                &bull; {{ $item->notes }}
+                            </div>
+                            @endif
+                        </span>
                         <span>Rp {{ number_format($item->subtotal, 0, ',', '.') }}</span>
                     </div>
                     @endforeach

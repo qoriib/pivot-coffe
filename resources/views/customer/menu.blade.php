@@ -414,6 +414,185 @@
         border-color: var(--border);
         box-shadow: none;
     }
+
+    /* ══ DIALOG MODAL ════════════════════════════════════════════════════ */
+    dialog.custom-modal {
+        border: none;
+        border-radius: 24px;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+        padding: 0;
+        width: 100%;
+        max-width: 420px;
+        margin: auto;
+        background: white;
+        overflow: hidden;
+    }
+
+    dialog.custom-modal::backdrop {
+        background: rgba(0,0,0,0.5);
+        backdrop-filter: blur(4px);
+    }
+
+    .modal-content-wrapper {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .modal-header {
+        padding: 20px 25px;
+        border-bottom: var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #fafafa;
+    }
+
+    .modal-header h3 {
+        font-size: 1.25rem;
+        color: var(--primary);
+    }
+
+    .btn-close-modal {
+        background: none;
+        border: none;
+        color: var(--text-light);
+        font-size: 18px;
+        cursor: pointer;
+        transition: color 0.3s;
+    }
+
+    .btn-close-modal:hover {
+        color: var(--primary);
+    }
+
+    .modal-body {
+        padding: 25px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+
+    .modal-option-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .option-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .option-card {
+        position: relative;
+        cursor: pointer;
+    }
+
+    .option-card input {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .option-card-box {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 12px;
+        border-radius: 12px;
+        border: 2px solid #eee;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-light);
+        transition: all 0.3s;
+        text-align: center;
+    }
+
+    .option-card input:checked + .option-card-box {
+        border-color: var(--primary);
+        color: var(--primary);
+        background: rgba(27, 67, 50, 0.03);
+    }
+
+    .option-card-box i {
+        font-size: 14px;
+    }
+
+    .qty-selector {
+        display: flex;
+        align-items: center;
+        border: var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+        width: fit-content;
+        background: var(--bg);
+    }
+
+    .qty-selector button {
+        width: 42px;
+        height: 42px;
+        border: none;
+        background: none;
+        color: var(--primary);
+        cursor: pointer;
+        font-size: 14px;
+        transition: background 0.3s;
+    }
+
+    .qty-selector button:hover {
+        background: rgba(0,0,0,0.05);
+    }
+
+    .qty-selector input {
+        width: 50px;
+        height: 42px;
+        border: none;
+        border-left: var(--border);
+        border-right: var(--border);
+        text-align: center;
+        font-family: inherit;
+        font-weight: 700;
+        font-size: 15px;
+        background: white;
+    }
+
+    .modal-footer {
+        padding: 20px 25px;
+        border-top: var(--border);
+        background: #fafafa;
+    }
+
+    .form-input-p {
+        width: 100%;
+        padding: 14px 18px;
+        border-radius: 12px;
+        border: var(--border);
+        background: var(--bg);
+        font-family: inherit;
+        font-size: 14px;
+        transition: all 0.3s;
+        box-sizing: border-box;
+    }
+
+    .form-input-p:focus {
+        outline: none;
+        border-color: var(--accent);
+        background: white;
+        box-shadow: 0 5px 15px rgba(212, 163, 115, 0.15);
+    }
+
+    .form-label-p {
+        display: block;
+        font-weight: 600;
+        font-size: 14px;
+        color: var(--text);
+        margin-bottom: 10px;
+    }
 </style>
 @endpush
 
@@ -560,14 +739,10 @@
                             <span class="menu-item-price">Rp {{ number_format($menu->price, 0, ',', '.') }}</span>
                             
                             @if($menu->is_available)
-                            <form action="{{ route('customer.cart.add', $table->qr_token) }}" method="POST">
-                                @csrf
-                                <input type="hidden" name="menu_id" value="{{ $menu->id }}">
-                                <input type="hidden" name="quantity" value="1">
-                                <button type="submit" class="btn-add-cart" title="Tambah ke Keranjang">
-                                    <i class="fas fa-plus"></i>
-                                </button>
-                            </form>
+                            <button type="button" class="btn-add-cart" title="Tambah ke Keranjang"
+                                onclick="openAddCartModal({{ $menu->id }}, '{{ addslashes($menu->name) }}', '{{ $menu->category->name }}')">
+                                <i class="fas fa-plus"></i>
+                            </button>
                             @else
                             <span style="font-size: 11px; color: var(--danger); font-weight: 600; text-transform: uppercase;">Habis</span>
                             @endif
@@ -613,10 +788,104 @@
         </div>
     </div>
 </div>
+
+{{-- ══ DIALOG MODAL TAMBAH KE KERANJANG ════════════════════════════════ --}}
+<dialog id="add-cart-dialog" closedby="any" class="custom-modal">
+    <div class="modal-content-wrapper">
+        <form method="POST" action="{{ route('customer.cart.add', $table->qr_token) }}" id="add-cart-form">
+            @csrf
+            <input type="hidden" name="menu_id" id="modal-menu-id" value="">
+            
+            <div class="modal-header">
+                <h3 id="modal-menu-name" class="font-serif">Tambah ke Keranjang</h3>
+                <button type="button" class="btn-close-modal" onclick="closeAddCartModal()"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <div class="modal-body">
+                {{-- Jumlah/Quantity --}}
+                <div class="modal-option-group">
+                    <label class="form-label-p">Jumlah</label>
+                    <div class="qty-selector">
+                        <button type="button" onclick="changeModalQty(-1)"><i class="fas fa-minus"></i></button>
+                        <input type="number" name="quantity" id="modal-quantity" value="1" min="1" readonly>
+                        <button type="button" onclick="changeModalQty(1)"><i class="fas fa-plus"></i></button>
+                    </div>
+                </div>
+
+                {{-- Catatan tambahan --}}
+                <div class="modal-option-group" style="margin-bottom: 0;">
+                    <label class="form-label-p" for="modal-notes">Catatan Pesanan (Opsional)</label>
+                    <textarea name="notes" id="modal-notes" rows="4" class="form-input-p" style="border-radius: 12px; resize: none; line-height: 1.5;" placeholder="Contoh: es sedikit, kurang manis, tanpa bawang..."></textarea>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary btn-block">Tambahkan</button>
+            </div>
+        </form>
+    </div>
+</dialog>
 @endsection
 
 @push('scripts')
 <script>
     // Cart update logic is handled by the layout's script
+
+    // Javascript for Add to Cart Modal with Options
+    const addCartDialog = document.getElementById('add-cart-dialog');
+    const modalMenuId = document.getElementById('modal-menu-id');
+    const modalMenuName = document.getElementById('modal-menu-name');
+    const modalQty = document.getElementById('modal-quantity');
+    const modalNotes = document.getElementById('modal-notes');
+
+    function openAddCartModal(menuId, menuName, categoryName) {
+        modalMenuId.value = menuId;
+        modalMenuName.textContent = menuName;
+        modalQty.value = 1;
+        modalNotes.value = '';
+
+        // Normalize category name for detection
+        const cat = categoryName.toLowerCase();
+        const isDrink = cat.includes('kopi') || cat.includes('minuman') || cat.includes('drink') || cat.includes('beverage');
+        const isFood = cat.includes('makanan') || cat.includes('snack') || cat.includes('camilan') || cat.includes('food');
+
+        if (isDrink) {
+            modalNotes.placeholder = "Rekomendasi catatan:\n• Suhu: Dingin (Es) / Panas\n• Gula: Normal / Kurang manis / Tanpa gula\n• Es: Normal / Sedikit es / Tanpa es";
+        } else if (isFood) {
+            modalNotes.placeholder = "Rekomendasi catatan:\n• Tingkat Kepedasan: Pedas / Sedang / Tidak pedas\n• Catatan: Tanpa daun bawang, Tanpa bawang, dll.";
+        } else {
+            modalNotes.placeholder = "Contoh: Kurang manis, Tanpa es, Tanpa bawang, dll...";
+        }
+
+        addCartDialog.showModal();
+    }
+
+    function closeAddCartModal() {
+        addCartDialog.close();
+    }
+
+    function changeModalQty(amount) {
+        let currentVal = parseInt(modalQty.value) || 1;
+        currentVal += amount;
+        if (currentVal < 1) currentVal = 1;
+        modalQty.value = currentVal;
+    }
+
+    // Fallback for browsers without closedby support
+    if (addCartDialog && !('closedBy' in HTMLDialogElement.prototype)) {
+        addCartDialog.addEventListener('click', (event) => {
+            if (event.target !== addCartDialog) return;
+            const rect = addCartDialog.getBoundingClientRect();
+            const isDialogContent = (
+                rect.top <= event.clientY &&
+                event.clientY <= rect.top + rect.height &&
+                rect.left <= event.clientX &&
+                event.clientX <= rect.left + rect.width
+            );
+            if (!isDialogContent) {
+                addCartDialog.close();
+            }
+        });
+    }
 </script>
 @endpush

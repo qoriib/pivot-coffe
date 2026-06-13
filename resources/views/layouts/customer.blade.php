@@ -617,7 +617,14 @@
                 @forelse($cart as $id => $item)
                     <div class="cart-item-row">
                         <div class="cart-item-info">
-                            <div class="cart-item-name">{{ $item['name'] }}</div>
+                            <div class="cart-item-name">
+                                {{ $item['name'] }}
+                                @if(!empty($item['notes']))
+                                    <div style="font-size: 11px; color: var(--accent); font-weight: 500; margin-top: 3px;">
+                                        <i class="far fa-comment-dots"></i> {{ $item['notes'] }}
+                                    </div>
+                                @endif
+                            </div>
                             <div class="cart-item-price">Rp {{ number_format($item['unit_price'], 0, ',', '.') }}</div>
                         </div>
                         <div class="cart-qty-ctrl">
