@@ -365,6 +365,55 @@
     @media (max-width: 991px) {
         .menu-sidebar { display: none; }
     }
+
+    /* ══ PAGINATION ══════════════════════════════════════════════════════ */
+    .pagination-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        margin-top: 40px;
+    }
+
+    .pagination-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: var(--border);
+        background: white;
+        color: var(--primary);
+        font-family: inherit;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: var(--shadow);
+    }
+
+    .pagination-btn:hover:not(.disabled) {
+        background: var(--accent);
+        color: var(--primary-dark);
+        border-color: var(--accent);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(212, 163, 115, 0.25);
+    }
+
+    .pagination-btn.active {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+    }
+
+    .pagination-btn.disabled {
+        color: var(--text-light);
+        opacity: 0.35;
+        cursor: not-allowed;
+        background: transparent;
+        border-color: var(--border);
+        box-shadow: none;
+    }
 </style>
 @endpush
 
@@ -532,6 +581,34 @@
                 </div>
                 @endforelse
             </div>
+
+            {{-- Pagination --}}
+            @if($menus->hasPages())
+            <div class="pagination-container">
+                {{-- Previous Page Link --}}
+                @if($menus->onFirstPage())
+                    <span class="pagination-btn disabled"><i class="fas fa-chevron-left"></i></span>
+                @else
+                    <a href="{{ $menus->previousPageUrl() }}" class="pagination-btn"><i class="fas fa-chevron-left"></i></a>
+                @endif
+
+                {{-- Pagination Elements --}}
+                @foreach ($menus->getUrlRange(1, $menus->lastPage()) as $page => $url)
+                    @if ($page == $menus->currentPage())
+                        <span class="pagination-btn active">{{ $page }}</span>
+                    @else
+                        <a href="{{ $url }}" class="pagination-btn">{{ $page }}</a>
+                    @endif
+                @endforeach
+
+                {{-- Next Page Link --}}
+                @if($menus->hasMorePages())
+                    <a href="{{ $menus->nextPageUrl() }}" class="pagination-btn"><i class="fas fa-chevron-right"></i></a>
+                @else
+                    <span class="pagination-btn disabled"><i class="fas fa-chevron-right"></i></span>
+                @endif
+            </div>
+            @endif
 
         </div>
     </div>

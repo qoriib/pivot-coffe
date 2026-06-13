@@ -34,7 +34,7 @@ class MenuController extends Controller
             $menuQuery->where('name', 'like', '%' . $search . '%');
         }
 
-        $menus = $menuQuery->get();
+        $menus = $menuQuery->paginate(8)->withQueryString();
 
         // Best sellers: top 3 by total quantity sold
         $bestSellerIds = OrderItem::selectRaw('menu_id, SUM(quantity) as total_qty')
