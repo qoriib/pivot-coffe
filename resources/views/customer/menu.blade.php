@@ -235,27 +235,6 @@
         border-color: var(--primary);
     }
 
-    /* ══ WAITER FAB ══════════════════════════════════════════════════════ */
-    .waiter-fab {
-        background: var(--accent);
-        color: var(--primary-dark);
-        padding: 15px 25px;
-        border-radius: 50px;
-        font-weight: 700;
-        box-shadow: 0 8px 25px rgba(212, 163, 115, 0.4);
-        border: none;
-        cursor: pointer;
-        transition: all 0.3s;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .waiter-fab:hover {
-        transform: scale(1.05) translateY(-5px);
-        background: var(--accent-light);
-    }
-
     .page-header {
         margin-bottom: 40px;
     }
@@ -610,15 +589,6 @@
         $appliedPromo = session('applied_promo_' . $table->id);
     @endphp
 
-    {{-- ══ WAITER FAB ══════════════════════════════════════════════════════ --}}
-    <form action="{{ route('customer.waiter', $table->qr_token) }}" method="POST"
-          style="position:fixed;bottom:30px;right:30px;z-index:200" class="no-print">
-        @csrf
-        <button type="submit" class="waiter-fab">
-            <i class="fas fa-bell"></i>
-            <span>Panggil Pelayan</span>
-        </button>
-    </form>
 
     <div class="menu-layout">
         {{-- ── SIDEBAR (desktop) ──────────────────────────────────────────── --}}

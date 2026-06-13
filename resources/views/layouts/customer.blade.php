@@ -219,7 +219,7 @@
             inset: 0;
             background: rgba(0,0,0,0.6);
             backdrop-filter: blur(4px);
-            z-index: 2000;
+            z-index: 2600;
             opacity: 0;
             visibility: hidden;
             transition: all 0.3s;
@@ -236,7 +236,7 @@
             width: 100%; max-width: 450px;
             height: 100vh;
             background: var(--white);
-            z-index: 2001;
+            z-index: 2601;
             display: flex;
             flex-direction: column;
             transform: translateX(100%);
@@ -471,14 +471,13 @@
             gap: 12px;
             background: var(--white);
             border: var(--border);
-            box-shadow: var(--shadow);
             border-radius: 10px;
             padding: 12px 14px;
             text-decoration: none;
             color: var(--text);
             position: relative;
             min-width: 240px;
-            transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.3s ease;
+            transition: transform 0.2s ease, opacity 0.3s ease;
             animation: slideInUp 0.3s ease-out;
         }
 
@@ -554,6 +553,24 @@
             .nav-links.active { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
             .nav-links a { padding: 20px 25px; border-bottom: 1px solid #f0f0f0; display: block; color: var(--text) !important; }
             .nav-meta { margin-left: auto; }
+        }
+        /* ══ WAITER FAB ══════════════════════════════════════════════════════ */
+        .waiter-fab {
+            background: var(--accent);
+            color: var(--primary-dark);
+            padding: 15px 25px;
+            border-radius: 50px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .waiter-fab:hover {
+            background: var(--accent-light);
         }
     </style>
     @stack('styles')
@@ -706,6 +723,17 @@
         }
     @endphp
     <div id="floating-order-status-container" class="no-print">
+        {{-- ══ WAITER FAB ══════════════════════════════════════════════════════ --}}
+        @if(session('qr_token'))
+        <form action="{{ route('customer.waiter', session('qr_token')) }}" method="POST"
+              style="align-self: flex-end; margin-bottom: 5px;">
+            @csrf
+            <button type="submit" class="waiter-fab">
+                <i class="fas fa-bell"></i>
+                <span>Panggil Pelayan</span>
+            </button>
+        </form>
+        @endif
         @foreach($activeTrxs as $trxId)
             <div
                 class="floating-order-status"
