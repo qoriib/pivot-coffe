@@ -345,6 +345,78 @@
         .menu-sidebar { display: none; }
     }
 
+    /* ══ PROMO SPECIAL SECTION ══════════════════════════════════════════ */
+    .promo-section {
+        margin-bottom: 30px;
+    }
+
+    .promo-section-title {
+        font-size: 1.4rem;
+        color: var(--primary);
+        font-family: 'Playfair Display', serif;
+        margin-bottom: 15px;
+        font-weight: 700;
+    }
+
+    .promo-slider {
+        display: flex;
+        gap: 12px;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none; /* Firefox */
+        padding-bottom: 5px;
+    }
+
+    .promo-slider::-webkit-scrollbar {
+        display: none; /* Safari/Chrome */
+    }
+
+    .promo-slide {
+        flex-shrink: 0;
+        width: 290px;
+        scroll-snap-align: start;
+    }
+
+    .promo-details {
+        flex: 1;
+        height: 110px;
+        background-color: #ebe7e0; /* light beige */
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        border-radius: 16px;
+        padding: 14px 16px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        box-sizing: border-box;
+    }
+
+    .promo-badge {
+        background-color: #2e1b12; /* dark brown badge */
+        color: white;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 20px;
+        width: fit-content;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .promo-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin-top: 4px;
+        margin-bottom: 2px;
+    }
+
+    .promo-desc {
+        font-size: 12px;
+        color: var(--text-light);
+        line-height: 1.3;
+    }
+
     /* ══ PAGINATION ══════════════════════════════════════════════════════ */
     .pagination-container {
         display: flex;
@@ -611,19 +683,6 @@
                 </div>
             </div>
 
-            @if($promos->count() > 0)
-            <div class="sidebar-card">
-                <div class="sidebar-card-header">Promo Spesial</div>
-                <div class="sidebar-card-body">
-                    @foreach($promos as $promo)
-                    <div class="promo-card-mini" style="background: var(--bg); padding: 15px; border-radius: 15px; margin-bottom: 10px; border: 1px dashed var(--accent);">
-                        <div style="font-weight: 700; color: var(--primary); font-size: 14px; margin-bottom: 5px;">{{ $promo->code }}</div>
-                        <div style="font-size: 12px; color: var(--text-light); line-height: 1.4;">{{ $promo->description }}</div>
-                    </div>
-                    @endforeach
-                </div>
-            </div>
-            @endif
         </aside>
 
         {{-- ── MAIN CONTENT ────────────────────────────────────────────────── --}}
@@ -649,6 +708,40 @@
                     <input type="text" name="search" value="{{ $search }}" placeholder="Cari kopi favoritmu...">
                 </form>
             </div>
+
+            {{-- Promo Spesial Slider --}}
+            @if($promos->count() > 0)
+            <div class="promo-section">
+                <h2 class="promo-section-title">Promo Spesial</h2>
+                <div class="promo-slider">
+                    @foreach($promos as $promo)
+                        @php
+                            $promoTitle = '';
+                            $promoDesc = '';
+                            if ($promo->code === 'HEMAT10') {
+                                $promoTitle = 'Diskon 10%';
+                                $promoDesc = 'Untuk semua menu';
+                            } elseif ($promo->code === 'GRATIS5K') {
+                                $promoTitle = 'Potongan 5K';
+                                $promoDesc = 'Min. pembelian Rp 50rb';
+                            } else {
+                                $promoTitle = $promo->discount_type === 'percent' 
+                                    ? 'Diskon ' . number_format($promo->discount_value, 0) . '%' 
+                                    : 'Potongan ' . number_format($promo->discount_value / 1000, 0) . 'K';
+                                $promoDesc = $promo->description;
+                            }
+                        @endphp
+                        <div class="promo-slide">
+                            <div class="promo-details">
+                                <span class="promo-badge">{{ $promo->code }}</span>
+                                <div class="promo-title">{{ $promoTitle }}</div>
+                                <div class="promo-desc">{{ $promoDesc }}</div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
 
             {{-- Best Seller --}}
             @if($bestSellers->count() > 0)
@@ -677,22 +770,7 @@
             </div>
             @endif
 
-            {{-- Mobile Promo --}}
-            @if($promos->count() > 0)
-            <div class="d-lg-none" style="margin-bottom: 25px;">
-                <div class="sidebar-card" style="margin-bottom: 0;">
-                    <div class="sidebar-card-header">Promo Spesial</div>
-                    <div class="sidebar-card-body">
-                        @foreach($promos as $promo)
-                        <div class="promo-card-mini" style="background: var(--bg); padding: 15px; border-radius: 15px; margin-bottom: 10px; border: 1px dashed var(--accent);">
-                            <div style="font-weight: 700; color: var(--primary); font-size: 14px; margin-bottom: 5px;">{{ $promo->code }}</div>
-                            <div style="font-size: 12px; color: var(--text-light); line-height: 1.4;">{{ $promo->description }}</div>
-                        </div>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-            @endif
+
 
             {{-- Menu Grid --}}
             <div class="menu-grid">
@@ -765,6 +843,7 @@
         <form method="POST" action="{{ route('customer.cart.add', $table->qr_token) }}" id="add-cart-form">
             @csrf
             <input type="hidden" name="menu_id" id="modal-menu-id" value="">
+            <input type="hidden" name="notes" id="modal-combined-notes" value="">
             
             <div class="modal-header">
                 <h3 id="modal-menu-name" class="font-serif">Tambah ke Keranjang</h3>
@@ -772,6 +851,47 @@
             </div>
             
             <div class="modal-body">
+                {{-- Dynamic Option Groups --}}
+                <div id="modal-drink-options" class="modal-option-group" style="display: none;">
+                    <label class="form-label-p">Pilih Suhu</label>
+                    <div class="option-grid">
+                        <label class="option-card">
+                            <input type="radio" name="temp_option" value="Es" checked>
+                            <div class="option-card-box">
+                                <i class="fas fa-snowflake" style="color: #3b82f6;"></i>
+                                Es / Dingin
+                            </div>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="temp_option" value="Panas">
+                            <div class="option-card-box">
+                                <i class="fas fa-fire" style="color: #ef4444;"></i>
+                                Panas
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="modal-food-options" class="modal-option-group" style="display: none;">
+                    <label class="form-label-p">Pilih Tingkat Kepedasan</label>
+                    <div class="option-grid">
+                        <label class="option-card">
+                            <input type="radio" name="spicy_option" value="Tidak Pedas" checked>
+                            <div class="option-card-box">
+                                <i class="fas fa-leaf" style="color: #10b981;"></i>
+                                Tidak Pedas
+                            </div>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="spicy_option" value="Pedas">
+                            <div class="option-card-box">
+                                <i class="fas fa-pepper-hot" style="color: #ef4444;"></i>
+                                Pedas
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
                 {{-- Jumlah/Quantity --}}
                 <div class="modal-option-group">
                     <label class="form-label-p">Jumlah</label>
@@ -784,8 +904,8 @@
 
                 {{-- Catatan tambahan --}}
                 <div class="modal-option-group" style="margin-bottom: 0;">
-                    <label class="form-label-p" for="modal-notes">Catatan Pesanan (Opsional)</label>
-                    <textarea name="notes" id="modal-notes" rows="4" class="form-input-p" style="border-radius: 12px; resize: none; line-height: 1.5;" placeholder="Contoh: es sedikit, kurang manis, tanpa bawang..."></textarea>
+                    <label class="form-label-p" for="modal-notes">Catatan Tambahan (Opsional)</label>
+                    <textarea id="modal-notes" rows="3" class="form-input-p" style="border-radius: 12px; resize: none; line-height: 1.5;" placeholder="Contoh: es sedikit, kurang manis, tanpa bawang..."></textarea>
                 </div>
             </div>
             
@@ -807,6 +927,8 @@
     const modalMenuName = document.getElementById('modal-menu-name');
     const modalQty = document.getElementById('modal-quantity');
     const modalNotes = document.getElementById('modal-notes');
+    const addCartForm = document.getElementById('add-cart-form');
+    const modalCombinedNotes = document.getElementById('modal-combined-notes');
 
     function openAddCartModal(menuId, menuName, categoryName) {
         modalMenuId.value = menuId;
@@ -819,12 +941,28 @@
         const isDrink = cat.includes('kopi') || cat.includes('minuman') || cat.includes('drink') || cat.includes('beverage');
         const isFood = cat.includes('makanan') || cat.includes('snack') || cat.includes('camilan') || cat.includes('food');
 
+        const drinkOptGroup = document.getElementById('modal-drink-options');
+        const foodOptGroup = document.getElementById('modal-food-options');
+
+        // Reset radio selections to defaults if elements exist
+        const defaultTempRadio = document.querySelector('input[name="temp_option"][value="Es"]');
+        if (defaultTempRadio) defaultTempRadio.checked = true;
+
+        const defaultSpicyRadio = document.querySelector('input[name="spicy_option"][value="Tidak Pedas"]');
+        if (defaultSpicyRadio) defaultSpicyRadio.checked = true;
+
         if (isDrink) {
-            modalNotes.placeholder = "Rekomendasi catatan:\n• Suhu: Dingin (Es) / Panas\n• Gula: Normal / Kurang manis / Tanpa gula\n• Es: Normal / Sedikit es / Tanpa es";
+            drinkOptGroup.style.display = 'block';
+            foodOptGroup.style.display = 'none';
+            modalNotes.placeholder = "Contoh: kurang manis, es sedikit, tanpa es...";
         } else if (isFood) {
-            modalNotes.placeholder = "Rekomendasi catatan:\n• Tingkat Kepedasan: Pedas / Sedang / Tidak pedas\n• Catatan: Tanpa daun bawang, Tanpa bawang, dll.";
+            drinkOptGroup.style.display = 'none';
+            foodOptGroup.style.display = 'block';
+            modalNotes.placeholder = "Contoh: tanpa bawang, ekstra keju, dll...";
         } else {
-            modalNotes.placeholder = "Contoh: Kurang manis, Tanpa es, Tanpa bawang, dll...";
+            drinkOptGroup.style.display = 'none';
+            foodOptGroup.style.display = 'none';
+            modalNotes.placeholder = "Contoh: sendok plastik, saus dipisah, dll...";
         }
 
         addCartDialog.showModal();
@@ -833,6 +971,37 @@
     function closeAddCartModal() {
         addCartDialog.close();
     }
+
+    // Combine options and custom notes before form submission
+    addCartForm.addEventListener('submit', function(e) {
+        let options = [];
+        
+        // Check if drink options are visible
+        const drinkOptions = document.getElementById('modal-drink-options');
+        if (drinkOptions && drinkOptions.style.display !== 'none') {
+            const selectedTemp = document.querySelector('input[name="temp_option"]:checked')?.value;
+            if (selectedTemp) {
+                options.push(selectedTemp);
+            }
+        }
+        
+        // Check if food options are visible
+        const foodOptions = document.getElementById('modal-food-options');
+        if (foodOptions && foodOptions.style.display !== 'none') {
+            const selectedSpicy = document.querySelector('input[name="spicy_option"]:checked')?.value;
+            if (selectedSpicy) {
+                options.push(selectedSpicy);
+            }
+        }
+        
+        const customText = modalNotes.value.trim();
+        if (customText) {
+            options.push(customText);
+        }
+        
+        // Combine options with a comma and store in hidden input
+        modalCombinedNotes.value = options.join(', ');
+    });
 
     function changeModalQty(amount) {
         let currentVal = parseInt(modalQty.value) || 1;
